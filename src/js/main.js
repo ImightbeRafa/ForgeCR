@@ -468,7 +468,8 @@ async function handleTilopayPayment(orderData) {
   if (data.paymentUrl) {
     window.location.href = data.paymentUrl;
   } else {
-    throw new Error(data.error || 'No payment URL returned');
+    console.error('Tilopay details:', data.details);
+    throw new Error(data.error || 'No payment URL received');
   }
 }
 

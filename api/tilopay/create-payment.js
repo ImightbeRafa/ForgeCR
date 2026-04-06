@@ -40,20 +40,36 @@ export default async function handler(req, res) {
 
     const paymentBody = {
       key: process.env.TILOPAY_API_KEY,
-      amount: order.total,
+      amount: Number(order.total).toFixed(2),
       currency: 'CRC',
       orderNumber: order.orderId,
       capture: '1',
       hashVersion: 'V2',
       platform: 'Forge Costa Rica',
       redirect: `${SITE_URL}/success.html`,
+      callback_url: `${SITE_URL}/api/tilopay/webhook`,
       returnData,
       billToFirstName: order.customer.firstName,
       billToLastName: order.customer.lastName,
       billToAddress: order.shipping.address,
+      billToAddress2: '',
       billToCity: order.shipping.canton,
-      billToCountry: 'CR'
+      billToState: order.shipping.province,
+      billToZipCode: '10101',
+      billToCountry: 'CR',
+      billToEmail: order.customer.email,
+      billToPhone: order.customer.phone.replace(/\D/g, ''),
+      shipToFirstName: order.customer.firstName,
+      shipToLastName: order.customer.lastName,
+      shipToAddress: order.shipping.address,
+      shipToAddress2: '',
+      shipToCity: order.shipping.canton,
+      shipToState: order.shipping.province,
+      shipToZipCode: '10101',
+      shipToCountry: 'CR'
     };
+
+    console.log('[Tilopay] Payment request:', JSON.stringify({ ...paymentBody, key: '***' }));
 
     const payRes = await fetch(`${BASE_URL}/processPayment`, {
       method: 'POST',
@@ -65,9 +81,10 @@ export default async function handler(req, res) {
     });
 
     const payData = await payRes.json();
+    console.log('[Tilopay] Payment response:', JSON.stringify(payData));
 
     if (!payData.url) {
-      console.error('[Tilopay] No URL returned:', payData);
+      console.error('[Tilopay] No URL returned. Status:', payRes.status, 'Body:', payData);
       return res.status(400).json({ error: 'No payment URL received', details: payData });
     }
 
