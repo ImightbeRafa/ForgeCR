@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pedido Confirmado — Forge Costa Rica</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+  <!-- Meta Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '983130057569210');
+    fbq('track', 'PageView');
+  </script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: #0A0A0C;
+      color: #EAEAEC;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .success-container {
+      text-align: center;
+      max-width: 480px;
+      padding: 40px 24px;
+    }
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      border: 3px solid #3EBD7A;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      animation: scaleIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .success-icon svg { color: #3EBD7A; }
+    .success-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .success-sub {
+      font-size: 1rem;
+      color: #8A8A94;
+      line-height: 1.65;
+      margin-bottom: 8px;
+    }
+    .order-id {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #D44147;
+      margin-bottom: 32px;
+    }
+    .success-note {
+      font-size: 0.875rem;
+      color: #555560;
+      line-height: 1.5;
+      margin-bottom: 32px;
+      padding: 16px;
+      background: #16161C;
+      border-radius: 6px;
+      border: 1px solid #1E1E26;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: #D44147;
+      color: #fff;
+      padding: 16px 40px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: all 280ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .btn:hover {
+      background: #E25158;
+      box-shadow: 0 0 24px rgba(212, 65, 71, 0.15);
+      transform: translateY(-1px);
+    }
+    @keyframes scaleIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="success-container">
+    <div class="success-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+    <h1 class="success-title">¡Pedido Confirmado!</h1>
+    <p class="success-sub">Gracias por confiar en Forge Costa Rica.</p>
+    <p class="order-id" id="orderId"></p>
+    <div class="success-note" id="paymentNote">
+      Te enviamos un correo con los detalles de tu pedido. Si tenés alguna duda, contactanos por WhatsApp.
+    </div>
+    <a href="/" class="btn">Volver al Inicio</a>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('orderId');
+    const code = params.get('code');
+    const returnData = params.get('returnData');
+    const txnId = params.get('tilopay-transaction') || params.get('transactionId');
+    const method = params.get('method');
+
+    // Display order ID
+    if (orderId) {
+      document.getElementById('orderId').textContent = `Pedido #${orderId}`;
+    }
+
+    // SINPE note
+    if (method === 'sinpe') {
+      document.getElementById('paymentNote').innerHTML =
+        'Tu pedido fue recibido. <strong>El pago por SINPE Móvil está pendiente de verificación.</strong> Te notificaremos por correo una vez confirmado.';
+    }
+
+    // Tilopay confirm flow
+    if (code === '1' && returnData) {
+      const purchaseKey = `forge_purchase_${orderId}`;
+      if (!sessionStorage.getItem(purchaseKey)) {
+        sessionStorage.setItem(purchaseKey, '1');
+
+        // Browser-side Purchase pixel
+        if (typeof fbq === 'function') {
+          const eventId = `purchase_${orderId}_${txnId || 'unknown'}`;
+          fbq('track', 'Purchase', {
+            content_name: 'Arnés ForgeCR',
+            content_ids: ['arnes-forgecr'],
+            content_type: 'product',
+            value: 14900,
+            currency: 'CRC'
+          }, { eventID: eventId });
+        }
+
+        // Server-side confirm
+        fetch('/api/tilopay/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            returnData,
+            code,
+            transactionId: txnId
+          })
+        }).then(r => r.json())
+          .then(data => {
+            if (data.orderId) {
+              document.getElementById('orderId').textContent = `Pedido #${data.orderId}`;
+            }
+          })
+          .catch(err => console.error('Confirm error:', err));
+      }
+    }
+  </script>
+</body>
+</html>

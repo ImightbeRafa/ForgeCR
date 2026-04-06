@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ForgeCR — Forja tu Postura</title>
+  <meta name="description" content="Corrección postural de precisión para el atleta moderno. ForgeCR — tu postura, forjada." />
+
+  <!-- Google Fonts: Space Grotesk + Manrope -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+  <!-- Meta Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '983130057569210');
+    fbq('track', 'PageView');
+  </script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/src/styles/main.css" />
+</head>
+<body>
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=983130057569210&ev=PageView&noscript=1" /></noscript>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="#" class="header__logo">ForgeCR</a>
+      <nav class="header__nav" id="headerNav">
+        <a href="#producto" class="header__link header__link--active">Tienda</a>
+        <a href="#historia" class="header__link">Nuestra Historia</a>
+        <a href="#tallas" class="header__link">Guía de Tallas</a>
+      </nav>
+      <div class="header__actions">
+        <a href="#pedido" class="header__cart" aria-label="Carrito">
+          <span class="material-symbols-outlined">shopping_cart</span>
+        </a>
+        <button class="header__hamburger" id="hamburger" aria-label="Menú">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile menu overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+  <div class="mobile-drawer" id="mobileDrawer">
+    <button class="mobile-drawer__close" id="drawerClose" aria-label="Cerrar">&times;</button>
+    <nav class="mobile-drawer__nav">
+      <a href="#producto" class="mobile-drawer__link">Tienda</a>
+      <a href="#historia" class="mobile-drawer__link">Nuestra Historia</a>
+      <a href="#tallas" class="mobile-drawer__link">Guía de Tallas</a>
+      <a href="#pedido" class="mobile-drawer__link mobile-drawer__cta">Comprar Ahora</a>
+    </nav>
+  </div>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" id="hero">
+    <div class="hero__bg">
+      <img src="/images/forge.jpg" alt="Arnés ForgeCR" class="hero__bg-img" />
+      <div class="hero__gradient"></div>
+    </div>
+    <div class="container hero__inner">
+      <div class="hero__content">
+        <h1 class="hero__headline reveal-up">FORJA TU<br/>POSTURA</h1>
+        <p class="hero__sub reveal-up" data-delay="100">Corrección postural de precisión para el atleta moderno. Diseñado para perfeccionar su alineación mediante compresión de grado médico y durabilidad transpirable.</p>
+        <div class="hero__actions reveal-up" data-delay="200">
+          <a href="#pedido" class="btn btn--primary">Comprar Arness ForgeCR</a>
+          <div class="hero__price">
+            <span class="hero__price-label">Desde</span>
+            <span class="hero__price-tag">14,900 CRC</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Scroll Indicator -->
+    <div class="hero__scroll-indicator">
+      <span class="hero__scroll-text">Explorar</span>
+      <div class="hero__scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ===================== FEATURES — Editorial Asymmetric ===================== -->
+  <section class="features" id="beneficios">
+    <div class="container">
+      <div class="features__grid">
+        <!-- Feature 1 -->
+        <div class="feature reveal-up">
+          <div class="feature__text">
+            <span class="feature__label">01 / Desempeño</span>
+            <h2 class="feature__title">Soporte Superior.</h2>
+            <p class="feature__desc">El Arness ForgeCR utiliza correas de doble tensión para retraer los hombros mientras estabiliza la columna torácica, logrando una corrección inmediata que perdura durante entrenamientos de alta intensidad.</p>
+          </div>
+          <div class="feature__media reveal-up" data-delay="100">
+            <img src="/images/forge3.jpg" alt="Soporte de alto rendimiento" />
+          </div>
+        </div>
+        <!-- Feature 2 -->
+        <div class="feature feature--reverse reveal-up">
+          <div class="feature__media reveal-up" data-delay="100">
+            <img src="/images/forge2.jpg" alt="Material transpirable" />
+          </div>
+          <div class="feature__text">
+            <span class="feature__label">02 / Confort</span>
+            <h2 class="feature__title">Material Transpirable.</h2>
+            <p class="feature__desc">Fabricado con ventilación cortada por láser y malla antimicrobiana. Diseñado para ser usado de forma invisible bajo la ropa o como una capa de rendimiento superior.</p>
+          </div>
+        </div>
+        <!-- Feature 3 -->
+        <div class="feature reveal-up">
+          <div class="feature__text">
+            <span class="feature__label">03 / Ergonomía</span>
+            <h2 class="feature__title">Diseño Ergonómico.</h2>
+            <p class="feature__desc">Contorneado anatómicamente para reflejar la curva natural de la columna humana. Sin pellizcos ni roces. Simplemente alineación pura y enfocada para la anatomía moderna.</p>
+          </div>
+          <div class="feature__media reveal-up" data-delay="100">
+            <img src="/images/forge4.jpg" alt="Diseño ergonómico" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PRODUCTO ===================== -->
+  <section class="product" id="producto">
+    <div class="container product__inner">
+      <div class="product__hero-text">
+        <h2 class="product__headline reveal-up">EQUIPO DE<br/>PRECISIÓN.</h2>
+        <p class="product__intro reveal-up" data-delay="100">El Arness ForgeCR es más que un corrector. Es una herramienta para quienes exigen excelencia de su cuerpo.</p>
+      </div>
+    </div>
+    <div class="container product__layout">
+      <div class="product__gallery">
+        <div class="product__main-image">
+          <img src="/images/forge.jpg" alt="Arnés ForgeCR" id="mainProductImage" />
+        </div>
+        <div class="product__thumbs">
+          <button class="product__thumb active" data-img="/images/forge.jpg"><img src="/images/forge.jpg" alt="Vista del producto" /></button>
+          <button class="product__thumb" data-img="/images/forge2.jpg"><img src="/images/forge2.jpg" alt="En uso" /></button>
+          <button class="product__thumb" data-img="/images/forge3.jpg"><img src="/images/forge3.jpg" alt="Vista detalle" /></button>
+        </div>
+      </div>
+      <div class="product__info">
+        <div class="product__meta">
+          <span class="product__series">Serie de Alto Rendimiento</span>
+        </div>
+        <h3 class="product__name">Arness ForgeCR</h3>
+        <div class="product__price">
+          <span class="product__price-currency">CRC</span>
+          <span class="product__price-value">14,900</span>
+        </div>
+
+        <div class="product__sizes">
+          <div class="product__sizes-header">
+            <span class="product__sizes-label">Seleccionar Talla</span>
+            <a href="#tallas" class="product__sizes-guide">Guía de Tallas</a>
+          </div>
+          <div class="size-chips" id="sizeChips">
+            <button class="size-chip" data-size="L" data-stock="22">L</button>
+            <button class="size-chip" data-size="XL" data-stock="32">XL</button>
+            <button class="size-chip" data-size="2XL" data-stock="28">2XL</button>
+            <button class="size-chip" data-size="3XL" data-stock="12">3XL</button>
+            <button class="size-chip" data-size="4XL" data-stock="6">4XL</button>
+          </div>
+          <p class="product__stock" id="stockIndicator"></p>
+        </div>
+
+        <div class="product__quantity">
+          <span class="product__quantity-label">Cantidad</span>
+          <div class="quantity-selector">
+            <button class="quantity-btn" id="qtyMinus" aria-label="Menos">
+              <span class="material-symbols-outlined">remove</span>
+            </button>
+            <span class="quantity-value" id="qtyValue">1</span>
+            <button class="quantity-btn" id="qtyPlus" aria-label="Más">
+              <span class="material-symbols-outlined">add</span>
+            </button>
+          </div>
+        </div>
+
+        <button class="btn btn--primary product__add-btn" id="addToCartBtn" disabled>Comprar Ahora</button>
+
+        <div class="product__badges">
+          <span class="product__badge">
+            <span class="material-symbols-outlined">local_shipping</span> Envío Gratis CR
+          </span>
+          <span class="product__badge">
+            <span class="material-symbols-outlined">verified_user</span> 2 Años de Garantía
+          </span>
+        </div>
+
+        <div class="product__accordions">
+          <details class="accordion">
+            <summary class="accordion__header">
+              El Estándar Forge
+              <span class="material-symbols-outlined accordion__icon">expand_more</span>
+            </summary>
+            <div class="accordion__body">
+              <p>Diseñado para estilos de vida de alta intensidad. El Arness ForgeCR utiliza compresión de grado médico y tecnología de biorretroalimentación para llevar suavemente los hombros hacia atrás, alineando la columna y reforzando la memoria muscular.</p>
+            </div>
+          </details>
+          <details class="accordion">
+            <summary class="accordion__header">
+              Material y Artesanía
+              <span class="material-symbols-outlined accordion__icon">expand_more</span>
+            </summary>
+            <div class="accordion__body">
+              <p>Construido con ForgeMesh de doble capa. Una mezcla de nailon y elastano que asegura la máxima transpirabilidad manteniendo la integridad estructural. Hipoalergénico e invisible bajo atuendos profesionales.</p>
+            </div>
+          </details>
+          <details class="accordion">
+            <summary class="accordion__header">
+              Envío y Devoluciones
+              <span class="material-symbols-outlined accordion__icon">expand_more</span>
+            </summary>
+            <div class="accordion__body">
+              <p>Envío a todo Costa Rica por Correos de Costa Rica. Tiempo estimado: 3-4 días hábiles. Si no estás satisfecho, contactanos por WhatsApp dentro de los primeros 7 días.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== BIOMECÁNICA ===================== -->
+  <section class="biomech" id="biomech">
+    <div class="container biomech__inner">
+      <div class="biomech__content reveal-up">
+        <h2 class="biomech__title">Alineación Biomecánica de Precisión.</h2>
+        <div class="biomech__steps">
+          <div class="biomech__step">
+            <span class="biomech__num">01</span>
+            <div>
+              <h4 class="biomech__step-title">Sistema de Tracción Activa</h4>
+              <p class="biomech__step-text">Las correas de tensión ajustable le permiten personalizar la resistencia, pasando de un recordatorio suave a una corrección rígida.</p>
+            </div>
+          </div>
+          <div class="biomech__step">
+            <span class="biomech__num">02</span>
+            <div>
+              <h4 class="biomech__step-title">Diseño Sin Roces</h4>
+              <p class="biomech__step-text">Las costuras selladas y las almohadillas axilares acolchadas evitan la irritación durante ciclos de uso de más de 12 horas.</p>
+            </div>
+          </div>
+          <div class="biomech__step">
+            <span class="biomech__num">03</span>
+            <div>
+              <h4 class="biomech__step-title">Compromiso del Núcleo</h4>
+              <p class="biomech__step-text">Fomenta la respiración diafragmática al estabilizar la caja torácica, mejorando la ingesta de oxígeno y la concentración.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="biomech__image reveal-right">
+        <div class="biomech__glow"></div>
+        <img src="/images/forge3.jpg" alt="Biomecánica del Arness ForgeCR" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== GUÍA DE TALLAS ===================== -->
+  <section class="size-guide" id="tallas">
+    <div class="container">
+      <div class="size-guide__header reveal-up">
+        <span class="size-guide__label">Ingeniería de Precisión</span>
+        <h2 class="size-guide__title">Guía de Tallas</h2>
+        <p class="size-guide__sub">El arnés Forge está diseñado para la precisión anatómica. El tallaje adecuado asegura el vector de fuerza correcto para la corrección postural.</p>
+      </div>
+      <div class="size-table-wrap reveal-up">
+        <table class="size-table">
+          <thead>
+            <tr>
+              <th>Talla</th>
+              <th>Estatura (CM/IN)</th>
+              <th>Peso (KG/LB)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="size-label">L</span></td>
+              <td>155–165 cm <span class="size-imperial">61–65 in</span></td>
+              <td>51–60 kg <span class="size-imperial">112–132 lb</span></td>
+            </tr>
+            <tr>
+              <td><span class="size-label">XL</span></td>
+              <td>160–170 cm <span class="size-imperial">63–67 in</span></td>
+              <td>61–70 kg <span class="size-imperial">134–154 lb</span></td>
+            </tr>
+            <tr>
+              <td><span class="size-label">2XL</span></td>
+              <td>165–175 cm <span class="size-imperial">65–69 in</span></td>
+              <td>71–80 kg <span class="size-imperial">157–176 lb</span></td>
+            </tr>
+            <tr>
+              <td><span class="size-label">3XL</span></td>
+              <td>170–180 cm <span class="size-imperial">67–71 in</span></td>
+              <td>81–90 kg <span class="size-imperial">179–198 lb</span></td>
+            </tr>
+            <tr>
+              <td><span class="size-label">4XL</span></td>
+              <td>175–185 cm <span class="size-imperial">69–73 in</span></td>
+              <td>91–100 kg <span class="size-imperial">201–220 lb</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="size-guide__tip reveal-up">
+        <span class="material-symbols-outlined">straighten</span>
+        <p>Si está entre dos tallas, recomendamos seleccionar la talla más pequeña para una tensión correctiva más agresiva.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TESTIMONIOS ===================== -->
+  <section class="testimonials" id="testimonios">
+    <div class="container">
+      <div class="testimonials__header reveal-up">
+        <h2 class="testimonials__title">Forjado por Resultados.</h2>
+        <div class="testimonials__stars">
+          <span class="material-symbols-outlined star-filled">star</span>
+          <span class="material-symbols-outlined star-filled">star</span>
+          <span class="material-symbols-outlined star-filled">star</span>
+          <span class="material-symbols-outlined star-filled">star</span>
+          <span class="material-symbols-outlined star-filled">star</span>
+          <span class="testimonials__count">Basado en más de 840 reseñas</span>
+        </div>
+      </div>
+      <div class="testimonials__grid">
+        <div class="testimonial-card reveal-up" data-delay="0">
+          <p class="testimonial-card__text">"Trabajo en oficina 8 horas al día. Después de dos semanas con el arnés, el dolor de espalda desapareció. Lo uso todos los días."</p>
+          <div class="testimonial-card__author">
+            <span class="testimonial-card__name">María G.</span>
+            <span class="testimonial-card__location">Compra Verificada</span>
+          </div>
+        </div>
+        <div class="testimonial-card reveal-up" data-delay="100">
+          <p class="testimonial-card__text">"Se nota la calidad del material. Es cómodo, no pica y se puede usar debajo de la camisa sin problema. 100% recomendado."</p>
+          <div class="testimonial-card__author">
+            <span class="testimonial-card__name">Carlos R.</span>
+            <span class="testimonial-card__location">Compra Verificada</span>
+          </div>
+        </div>
+        <div class="testimonial-card reveal-up" data-delay="200">
+          <p class="testimonial-card__text">"Mi mamá tiene problemas de postura y le regalé uno. Me dice que es lo mejor que le han dado. Ya le pedí uno para mí."</p>
+          <div class="testimonial-card__author">
+            <span class="testimonial-card__name">Andrea M.</span>
+            <span class="testimonial-card__location">Compra Verificada</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== HISTORIA ===================== -->
+  <section class="story" id="historia">
+    <div class="container story__inner">
+      <span class="story__label reveal-up">La Historia de Forge</span>
+      <h2 class="story__title reveal-up">Nacido en Costa Rica.<br/>Forjado para Vos.</h2>
+      <p class="story__text reveal-up">ForgeCR nació de una observación simple: la vida moderna está en guerra con nuestra biología. Pasamos nuestros días encorvados frente a pantallas, sacrificando la integridad estructural de nuestro cuerpo. Desde San José, buscamos en el mundo los mejores correctores posturales y los trajimos a Costa Rica. Seleccionamos cada producto por su calidad, compresión de grado médico y rendimiento atlético. No fabricamos — curamos. No solo vendemos un arnés; forjamos cimientos más sólidos para cada tico.</p>
+      <div class="story__line reveal-up"></div>
+    </div>
+  </section>
+
+  <!-- ===================== FAQ ===================== -->
+  <section class="faq" id="faq">
+    <div class="container">
+      <h2 class="faq__title reveal-up">Preguntas Frecuentes</h2>
+      <div class="faq__list">
+        <details class="faq-item reveal-up">
+          <summary class="faq-item__q">
+            ¿Cuánto tarda el envío?
+            <span class="material-symbols-outlined faq-item__icon">expand_more</span>
+          </summary>
+          <div class="faq-item__a">El envío se realiza por Correos de Costa Rica. Generalmente tarda entre 3 y 4 días hábiles dependiendo de tu ubicación.</div>
+        </details>
+        <details class="faq-item reveal-up">
+          <summary class="faq-item__q">
+            ¿Cómo sé qué talla elegir?
+            <span class="material-symbols-outlined faq-item__icon">expand_more</span>
+          </summary>
+          <div class="faq-item__a">Consultá nuestra <a href="#tallas">guía de tallas</a> donde encontrás la recomendación según tu estatura y peso. Si estás entre dos tallas, te recomendamos la talla más pequeña.</div>
+        </details>
+        <details class="faq-item reveal-up">
+          <summary class="faq-item__q">
+            ¿Se puede usar debajo de la ropa?
+            <span class="material-symbols-outlined faq-item__icon">expand_more</span>
+          </summary>
+          <div class="faq-item__a">Sí, el arnés es discreto y se puede usar cómodamente debajo de la ropa sin que se note. El material es delgado y transpirable.</div>
+        </details>
+        <details class="faq-item reveal-up">
+          <summary class="faq-item__q">
+            ¿Cuánto tiempo debo usarlo al día?
+            <span class="material-symbols-outlined faq-item__icon">expand_more</span>
+          </summary>
+          <div class="faq-item__a">Comience con 20 minutos diarios. Aumente gradualmente a medida que se fortalezcan los músculos de la espalda.</div>
+        </details>
+        <details class="faq-item reveal-up">
+          <summary class="faq-item__q">
+            ¿Qué métodos de pago aceptan?
+            <span class="material-symbols-outlined faq-item__icon">expand_more</span>
+          </summary>
+          <div class="faq-item__a">Aceptamos tarjetas de crédito y débito (Visa, Mastercard, American Express) a través de Tilopay, y también SINPE Móvil para transferencias bancarias.</div>
+        </details>
+        <details class="faq-item reveal-up">
+          <summary class="faq-item__q">
+            ¿Puedo usarlo en el gimnasio?
+            <span class="material-symbols-outlined faq-item__icon">expand_more</span>
+          </summary>
+          <div class="faq-item__a">Absolutamente. La malla transpirable está diseñada para movimientos de alto rendimiento.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PEDIDO (ORDER FORM) — Unified Checkout ===================== -->
+  <section class="order" id="pedido">
+    <div class="container">
+      <h2 class="order__title reveal-up">Completá tu Pedido</h2>
+
+      <!-- Step Indicators -->
+      <div class="checkout-steps reveal-up" data-delay="50">
+        <div class="checkout-step checkout-step--active" data-step="1">
+          <span class="checkout-step__num">1</span>
+          <span class="checkout-step__label">Producto</span>
+        </div>
+        <div class="checkout-step__line"></div>
+        <div class="checkout-step" data-step="2">
+          <span class="checkout-step__num">2</span>
+          <span class="checkout-step__label">Envío</span>
+        </div>
+        <div class="checkout-step__line"></div>
+        <div class="checkout-step" data-step="3">
+          <span class="checkout-step__num">3</span>
+          <span class="checkout-step__label">Pago</span>
+        </div>
+      </div>
+
+      <div class="order__layout">
+        <!-- LEFT: Product Card (sticky) -->
+        <div class="order__product-card" id="orderProductCard">
+          <div class="order__product-image">
+            <img src="/images/forge3.jpg" alt="Arnés ForgeCR" />
+          </div>
+          <div class="order__product-info">
+            <span class="order__product-series">Serie de Alto Rendimiento</span>
+            <h3 class="order__product-name">Arnés ForgeCR</h3>
+            <div class="order__product-price">
+              <span class="order__product-currency">CRC</span>
+              <span class="order__product-value">14,900</span>
+            </div>
+          </div>
+
+          <!-- Size Selector with Tooltips -->
+          <div class="order__sizes">
+            <span class="order__sizes-label">Seleccioná tu Talla</span>
+            <div class="order__size-chips" id="orderSizeChips">
+              <div class="order__size-chip-wrap">
+                <button class="order__size-chip" data-size="L" data-stock="22" data-height="155–165 cm" data-weight="51–60 kg">L</button>
+                <div class="size-tooltip">
+                  <span class="size-tooltip__title">Talla L</span>
+                  <span class="size-tooltip__row"><span class="material-symbols-outlined">height</span> 155–165 cm</span>
+                  <span class="size-tooltip__row"><span class="material-symbols-outlined">monitor_weight</span> 51–60 kg</span>
+                </div>
+              </div>
+              <div class="order__size-chip-wrap">
+                <button class="order__size-chip" data-size="XL" data-stock="32" data-height="160–170 cm" data-weight="61–70 kg">XL</button>
+                <div class="size-tooltip">
+                  <span class="size-tooltip__title">Talla XL</span>
+                  <span class="size-tooltip__row"><span class="material-symbols-outlined">height</span> 160–170 cm</span>
+                  <span class="size-tooltip__row"><span class="material-symbols-outlined">monitor_weight</span> 61–70 kg</span>
+                </div>
+              </div>
+              <div class="order__size-chip-wrap">
+                <button class="order__size-chip" data-size="2XL" data-stock="28" data-height="165–175 cm" data-weight="71–80 kg">2XL</button>
+                <div class="size-tooltip">
+                  <span class="size-tooltip__title">Talla 2XL</span>
+                  <span class="size-tooltip__row"><span class="material-symbols-outlined">height</span> 165–175 cm</span>
+                  <span class="size-tooltip__row"><span class="material-symbols-outlined">monitor_weight</span> 71–80 kg</span>
+                </div>
+              </div>
+              <div class="order__size-chip-wrap">
+                <button class="order__size-chip" data-size="3XL" data-stock="12" data-height="170–180 cm" data-weight="81–90 kg">3XL</button>
+                <div class="size-tooltip">
+                  <span class="size-tooltip__title">Talla 3XL</span>
+                  <span class="size-tooltip__row"><span class="material-symbols-outlined">height</span> 170–180 cm</span>
+                  <span class="size-tooltip__row"><span class="material-symbols-outlined">monitor_weight</span> 81–90 kg</span>
+                </div>
+              </div>
+              <div class="order__size-chip-wrap">
+                <button class="order__size-chip" data-size="4XL" data-stock="6" data-height="175–185 cm" data-weight="91–100 kg">4XL</button>
+                <div class="size-tooltip">
+                  <span class="size-tooltip__title">Talla 4XL</span>
+                  <span class="size-tooltip__row"><span class="material-symbols-outlined">height</span> 175–185 cm</span>
+                  <span class="size-tooltip__row"><span class="material-symbols-outlined">monitor_weight</span> 91–100 kg</span>
+                </div>
+              </div>
+            </div>
+            <p class="order__stock" id="orderStockIndicator"></p>
+          </div>
+
+          <!-- Quantity -->
+          <div class="order__qty">
+            <span class="order__qty-label">Cantidad</span>
+            <div class="quantity-selector">
+              <button class="quantity-btn" id="orderQtyMinus" aria-label="Menos">
+                <span class="material-symbols-outlined">remove</span>
+              </button>
+              <span class="quantity-value" id="orderQtyValue">1</span>
+              <button class="quantity-btn" id="orderQtyPlus" aria-label="Más">
+                <span class="material-symbols-outlined">add</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Order Summary -->
+          <div class="order__live-summary">
+            <div class="order__live-line">
+              <span>Subtotal</span>
+              <span id="liveSubtotal">₡14,900</span>
+            </div>
+            <div class="order__live-line">
+              <span>Envío</span>
+              <span>Gratis</span>
+            </div>
+            <div class="order__live-total">
+              <span>Total</span>
+              <span id="liveTotal">₡14,900</span>
+            </div>
+          </div>
+
+          <div class="order__product-badges">
+            <span class="order__badge"><span class="material-symbols-outlined">local_shipping</span> Envío Gratis</span>
+            <span class="order__badge"><span class="material-symbols-outlined">verified_user</span> 2 Años Garantía</span>
+            <span class="order__badge"><span class="material-symbols-outlined">schedule</span> Entrega 3-4 días</span>
+          </div>
+        </div>
+
+        <!-- RIGHT: Checkout Form -->
+        <form class="order__form" id="orderForm" novalidate>
+          <fieldset class="order__fieldset">
+            <legend class="order__legend">
+              <span class="order__legend-num">1</span>
+              Datos Personales
+            </legend>
+            <div class="form-row form-row--two">
+              <div class="form-group">
+                <label for="firstName" class="form-label">Nombre</label>
+                <input type="text" id="firstName" name="firstName" class="form-input" required autocomplete="given-name" />
+                <span class="form-error" id="firstNameError"></span>
+              </div>
+              <div class="form-group">
+                <label for="lastName" class="form-label">Apellido</label>
+                <input type="text" id="lastName" name="lastName" class="form-input" required autocomplete="family-name" />
+                <span class="form-error" id="lastNameError"></span>
+              </div>
+            </div>
+            <div class="form-row form-row--two">
+              <div class="form-group">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input type="email" id="email" name="email" class="form-input" required autocomplete="email" />
+                <span class="form-error" id="emailError"></span>
+              </div>
+              <div class="form-group">
+                <label for="phone" class="form-label">Teléfono</label>
+                <input type="tel" id="phone" name="phone" class="form-input" required placeholder="+506" autocomplete="tel" />
+                <span class="form-error" id="phoneError"></span>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="order__fieldset">
+            <legend class="order__legend">
+              <span class="order__legend-num">2</span>
+              Dirección de Envío
+            </legend>
+            <div class="form-group">
+              <label for="provincia" class="form-label">Provincia</label>
+              <select id="provincia" name="provincia" class="form-input form-select" required>
+                <option value="">Seleccioná tu provincia</option>
+                <option value="San José">San José</option>
+                <option value="Alajuela">Alajuela</option>
+                <option value="Cartago">Cartago</option>
+                <option value="Heredia">Heredia</option>
+                <option value="Guanacaste">Guanacaste</option>
+                <option value="Puntarenas">Puntarenas</option>
+                <option value="Limón">Limón</option>
+              </select>
+              <span class="form-error" id="provinciaError"></span>
+            </div>
+            <div class="form-row form-row--two">
+              <div class="form-group">
+                <label for="canton" class="form-label">Cantón</label>
+                <input type="text" id="canton" name="canton" class="form-input" required />
+                <span class="form-error" id="cantonError"></span>
+              </div>
+              <div class="form-group">
+                <label for="distrito" class="form-label">Distrito</label>
+                <input type="text" id="distrito" name="distrito" class="form-input" required />
+                <span class="form-error" id="distritoError"></span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="direccion" class="form-label">Dirección Exacta</label>
+              <textarea id="direccion" name="direccion" class="form-input form-textarea" rows="3" required placeholder="Calle, número, señas adicionales..."></textarea>
+              <span class="form-error" id="direccionError"></span>
+            </div>
+          </fieldset>
+
+          <fieldset class="order__fieldset">
+            <legend class="order__legend">
+              <span class="order__legend-num">3</span>
+              Método de Pago
+            </legend>
+            <div class="payment-methods" id="paymentMethods">
+              <label class="payment-method payment-method--active">
+                <input type="hidden" name="paymentMethod" value="tilopay" />
+                <div class="payment-method__content">
+                  <span class="payment-method__name">Tarjeta de Crédito / Débito</span>
+                  <span class="payment-method__desc">Visa, Mastercard, AMEX — pago seguro vía Tilopay</span>
+                </div>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="form-group">
+            <label for="comments" class="form-label">Comentarios (opcional)</label>
+            <textarea id="comments" name="comments" class="form-input form-textarea" rows="2" placeholder="Instrucciones especiales de entrega..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn--primary order__submit" id="submitOrder">
+            <span class="material-symbols-outlined">lock</span>
+            Pagar ₡<span id="submitTotal">14,900</span>
+          </button>
+          <p class="order__secure-note">
+            <span class="material-symbols-outlined">verified_user</span>
+            Pago 100% seguro. Tus datos están protegidos.
+          </p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <span class="footer__logo">ForgeCR</span>
+        <p class="footer__tagline">Equipo de postura de alto rendimiento diseñado para los más exigentes.</p>
+      </div>
+      <div class="footer__columns">
+        <div class="footer__col">
+          <span class="footer__col-title">Tienda</span>
+          <a href="#producto">Arness ForgeCR</a>
+          <a href="#tallas">Guía de Tallas</a>
+        </div>
+        <div class="footer__col">
+          <span class="footer__col-title">Compañía</span>
+          <a href="#historia">Nuestra Historia</a>
+          <a href="#faq">Preguntas Frecuentes</a>
+        </div>
+        <div class="footer__col">
+          <span class="footer__col-title">Legal</span>
+          <a href="#">Política de Privacidad</a>
+          <a href="#">Términos de Servicio</a>
+        </div>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <span class="footer__copy">&copy; 2026 ForgeCR. Todos los derechos reservados.</span>
+      <div class="footer__social">
+        <a href="https://wa.me/50671618029" target="_blank" rel="noopener" aria-label="WhatsApp">
+          <span class="material-symbols-outlined">chat</span>
+        </a>
+        <a href="https://instagram.com/forgecr" target="_blank" rel="noopener" aria-label="Instagram">
+          <span class="material-symbols-outlined">photo_camera</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp FAB -->
+  <a href="https://wa.me/50671618029" target="_blank" rel="noopener" class="whatsapp-fab" aria-label="Contactar por WhatsApp">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Procesando tu pedido...</p>
+  </div>
+
+  <!-- Main JS -->
+  <script type="module" src="/src/js/main.js"></script>
+</body>
+</html>
