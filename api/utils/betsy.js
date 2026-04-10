@@ -15,10 +15,10 @@ function buildBetsyPayload(order) {
     product: {
       name: order.product.name,
       quantity: order.product.quantity,
-      unitPrice: order.product.unitPrice
+      unitPrice: String(order.product.unitPrice)
     },
     shipping: {
-      cost: 0,
+      cost: '0',
       courier: 'Correos de Costa Rica',
       address: {
         province: order.shipping.province,

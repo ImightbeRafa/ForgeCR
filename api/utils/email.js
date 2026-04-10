@@ -122,9 +122,11 @@ function adminEmailHTML(order) {
 
 export async function sendOrderEmails(order) {
   if (!RESEND_API_KEY) {
-    console.log('[Email] Skipped — no Resend API key');
+    console.error('[Email] Skipped — no RESEND_API_KEY env var set');
     return { customer: null, admin: null };
   }
+
+  console.log(`[Email] Sending order emails for ${order.orderId} to ${order.customer.email}`);
 
   const isSinpe = order.paymentMethod === 'sinpe';
   const subject = isSinpe
@@ -141,7 +143,13 @@ export async function sendOrderEmails(order) {
         },
         body: JSON.stringify({ from: FROM_EMAIL, to, subject: subj, html })
       });
-      return await res.json();
+      const data = await res.json();
+      if (!res.ok) {
+        console.error(`[Email] Resend API error (${res.status}) to ${to}:`, JSON.stringify(data));
+      } else {
+        console.log(`[Email] Sent successfully to ${to}, id: ${data.id}`);
+      }
+      return data;
     } catch (err) {
       console.error('[Email] Send failed:', err.message);
       return null;
