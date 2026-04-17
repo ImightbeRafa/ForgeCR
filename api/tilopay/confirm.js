@@ -4,10 +4,6 @@ import { sendOrderToBetsyWithRetry } from '../utils/betsy.js';
 import { buildUserData, generateEventId, sendMetaEvent } from '../utils/meta.js';
 
 export default async function handler(req, res) {
-  // === DIAGNOSTIC LOGGING (remove after Tilopay flow is confirmed working) ===
-  console.log('[Confirm] Received', req.method, '| body keys:', Object.keys(req.body || {}), '| code=', req.body?.code, '| txnId=', req.body?.transactionId, '| returnDataLength=', req.body?.returnData?.length || 0);
-  // === END DIAGNOSTIC ===
-
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -15,7 +11,6 @@ export default async function handler(req, res) {
     const { returnData, code, transactionId } = req.body;
 
     if (code !== '1' && code !== 1) {
-      console.warn('[Confirm] Payment not successful, code:', code);
       return res.status(400).json({ error: 'Payment not successful', code });
     }
 
@@ -23,9 +18,8 @@ export default async function handler(req, res) {
     try {
       const decoded = Buffer.from(returnData, 'base64').toString('utf-8');
       order = JSON.parse(decoded);
-      console.log('[Confirm] Decoded order:', order.orderId, '| customer email:', order.customer?.email);
     } catch (e) {
-      console.error('[Confirm] returnData decode failed:', e.message, '| returnData first 100:', String(returnData).slice(0, 100));
+      console.error('[Confirm] returnData decode failed:', e.message);
       return res.status(400).json({ error: 'Invalid returnData' });
     }
 

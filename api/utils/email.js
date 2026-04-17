@@ -126,9 +126,6 @@ export async function sendOrderEmails(order) {
     return { customer: null, admin: null };
   }
 
-  const keyPrefix = RESEND_API_KEY.slice(0, 8);
-  console.log(`[Email] Sending order ${order.orderId} | from="${FROM_EMAIL}" | customer=${order.customer.email} | admin=${ADMIN_EMAIL || '(unset)'} | keyPrefix=${keyPrefix}…`);
-
   const isSinpe = order.paymentMethod === 'sinpe';
   const subject = isSinpe
     ? `Pedido recibido #${order.orderId} — Pendiente de pago`
@@ -147,8 +144,6 @@ export async function sendOrderEmails(order) {
       const data = await res.json();
       if (!res.ok) {
         console.error(`[Email] Resend API error (${res.status}) to ${to}:`, JSON.stringify(data));
-      } else {
-        console.log(`[Email] Sent successfully to ${to}, id: ${data.id}`);
       }
       return data;
     } catch (err) {

@@ -69,8 +69,6 @@ export default async function handler(req, res) {
       shipToCountry: 'CR'
     };
 
-    console.log('[Tilopay] Payment request:', JSON.stringify({ ...paymentBody, key: '***' }));
-
     const payRes = await fetch(`${BASE_URL}/processPayment`, {
       method: 'POST',
       headers: {
@@ -81,7 +79,6 @@ export default async function handler(req, res) {
     });
 
     const payData = await payRes.json();
-    console.log('[Tilopay] Payment response:', JSON.stringify(payData));
 
     if (!payData.url) {
       console.error('[Tilopay] No URL returned. Status:', payRes.status, 'Body:', payData);

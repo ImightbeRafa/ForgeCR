@@ -60,12 +60,9 @@ function adminEmailHTML(order) {
 
 export async function sendOrderEmails(order) {
   if (!RESEND_API_KEY) {
-    console.log('[Email] Skipped — no API key');
+    console.error('[Email] Skipped — no API key');
     return { customer: null, admin: null };
   }
-
-  const keyPrefix = RESEND_API_KEY.slice(0, 8);
-  console.log(`[Email] Sending order ${order.orderId} | from="${FROM_EMAIL}" | customer=${order.customer.email} | admin=${ADMIN_EMAIL || '(unset)'} | keyPrefix=${keyPrefix}…`);
 
   const isSinpe = order.paymentMethod === 'sinpe';
   const subject = isSinpe
@@ -81,8 +78,6 @@ export async function sendOrderEmails(order) {
     const data = await res.json();
     if (!res.ok) {
       console.error(`[Email] Resend API error (${res.status}) to ${to}:`, JSON.stringify(data));
-    } else {
-      console.log(`[Email] Sent to ${to}, id: ${data.id}`);
     }
     return data;
   };

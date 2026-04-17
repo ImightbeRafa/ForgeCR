@@ -47,7 +47,7 @@ function buildBetsyPayload(order) {
 
 export async function sendOrderToBetsyWithRetry(order, maxRetries = 3) {
   if (!BETSY_API_KEY) {
-    console.log('[Betsy] Skipped — no API key');
+    console.error('[Betsy] Skipped — no API key');
     return null;
   }
 
@@ -71,7 +71,6 @@ export async function sendOrderToBetsyWithRetry(order, maxRetries = 3) {
       clearTimeout(timeout);
 
       if (res.ok) {
-        console.log(`[Betsy] Synced order ${order.orderId}`);
         return await res.json();
       }
 

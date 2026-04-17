@@ -7,7 +7,7 @@ const PRODUCT = {
   price: 14900,
   currency: 'CRC',
   sizes: {
-    L: 22,
+    'M/L': 22,
     XL: 32,
     '2XL': 28,
     '3XL': 12,

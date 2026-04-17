@@ -31,7 +31,6 @@ export function generateEventId(prefix, orderId, extra = '') {
 
 export async function sendMetaEvent({ eventName, eventId, userData, customData, eventTime, sourceUrl }) {
   if (!PIXEL_ID || !ACCESS_TOKEN) {
-    console.log('[Meta CAPI] Skipped — no pixel ID or access token configured');
     return null;
   }
 
@@ -56,9 +55,7 @@ export async function sendMetaEvent({ eventName, eventId, userData, customData, 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    const result = await res.json();
-    console.log(`[Meta CAPI] ${eventName} sent:`, result);
-    return result;
+    return await res.json();
   } catch (err) {
     console.error(`[Meta CAPI] ${eventName} failed:`, err.message);
     return null;
