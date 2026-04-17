@@ -2,7 +2,7 @@
 // In local dev, we import from the same logic. For Vercel, the api/ versions are used directly.
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const ADMIN_EMAIL = process.env.ORDER_NOTIFICATION_EMAIL;
-const FROM_EMAIL = 'Forge Costa Rica <orders@forge.shopping>';
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Forge Costa Rica <orders@forge.shopping>';
 
 function formatCRC(amount) {
   return `₡${Number(amount).toLocaleString('es-CR')}`;
@@ -64,6 +64,9 @@ export async function sendOrderEmails(order) {
     return { customer: null, admin: null };
   }
 
+  const keyPrefix = RESEND_API_KEY.slice(0, 8);
+  console.log(`[Email] Sending order ${order.orderId} | from="${FROM_EMAIL}" | customer=${order.customer.email} | admin=${ADMIN_EMAIL || '(unset)'} | keyPrefix=${keyPrefix}…`);
+
   const isSinpe = order.paymentMethod === 'sinpe';
   const subject = isSinpe
     ? `Pedido recibido #${order.orderId}`
@@ -75,7 +78,13 @@ export async function sendOrderEmails(order) {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
       body: JSON.stringify({ from: FROM_EMAIL, to, subject: subj, html })
     });
-    return res.json();
+    const data = await res.json();
+    if (!res.ok) {
+      console.error(`[Email] Resend API error (${res.status}) to ${to}:`, JSON.stringify(data));
+    } else {
+      console.log(`[Email] Sent to ${to}, id: ${data.id}`);
+    }
+    return data;
   };
 
   const [customer, admin] = await Promise.all([

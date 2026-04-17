@@ -1,7 +1,7 @@
 /* Resend Email Service */
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const ADMIN_EMAIL = process.env.ORDER_NOTIFICATION_EMAIL;
-const FROM_EMAIL = 'Forge Costa Rica <orders@forge.shopping>';
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Forge Costa Rica <orders@forge.shopping>';
 
 function formatCRC(amount) {
   return `₡${Number(amount).toLocaleString('es-CR')}`;
@@ -126,7 +126,8 @@ export async function sendOrderEmails(order) {
     return { customer: null, admin: null };
   }
 
-  console.log(`[Email] Sending order emails for ${order.orderId} to ${order.customer.email}`);
+  const keyPrefix = RESEND_API_KEY.slice(0, 8);
+  console.log(`[Email] Sending order ${order.orderId} | from="${FROM_EMAIL}" | customer=${order.customer.email} | admin=${ADMIN_EMAIL || '(unset)'} | keyPrefix=${keyPrefix}…`);
 
   const isSinpe = order.paymentMethod === 'sinpe';
   const subject = isSinpe
