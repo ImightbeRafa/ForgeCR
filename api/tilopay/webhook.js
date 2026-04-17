@@ -14,13 +14,17 @@ function verifyHMAC(body, signature) {
 }
 
 export default async function handler(req, res) {
+  // === DIAGNOSTIC LOGGING (remove after Tilopay flow is confirmed working) ===
+  console.log('[Webhook] Received', req.method, '| hasSecret=', !!process.env.TILOPAY_WEBHOOK_SECRET, '| hasSig=', !!(req.headers['hash-tilopay'] || req.headers['x-tilopay-secret']), '| headers:', Object.keys(req.headers || {}), '| body keys:', Object.keys(req.body || {}), '| code=', req.body?.code);
+  // === END DIAGNOSTIC ===
+
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
     const signature = req.headers['hash-tilopay'] || req.headers['x-tilopay-secret'];
 
     if (!verifyHMAC(req.body, signature)) {
-      console.error('[Webhook] HMAC verification failed');
+      console.error('[Webhook] HMAC verification failed — body:', JSON.stringify(req.body).slice(0, 300));
       return res.status(401).json({ error: 'Unauthorized' });
     }
 

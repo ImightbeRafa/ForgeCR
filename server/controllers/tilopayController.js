@@ -73,6 +73,9 @@ export async function createPayment(req, res) {
 }
 
 export async function confirmPayment(req, res) {
+  // === DIAGNOSTIC LOGGING (remove after Tilopay flow is confirmed working) ===
+  console.log('[Confirm] Received | body keys:', Object.keys(req.body || {}), '| code=', req.body?.code, '| txnId=', req.body?.transactionId, '| returnDataLength=', req.body?.returnData?.length || 0);
+  // === END DIAGNOSTIC ===
   try {
     const { returnData, code, transactionId } = req.body;
 
@@ -80,8 +83,15 @@ export async function confirmPayment(req, res) {
       return res.status(400).json({ error: 'Payment not successful', code });
     }
 
-    const decoded = Buffer.from(returnData, 'base64').toString('utf-8');
-    const order = JSON.parse(decoded);
+    let order;
+    try {
+      order = JSON.parse(Buffer.from(returnData, 'base64').toString('utf-8'));
+      console.log('[Confirm] Decoded order:', order.orderId, '| customer email:', order.customer?.email);
+    } catch (e) {
+      console.error('[Confirm] returnData decode failed:', e.message);
+      return res.status(400).json({ error: 'Invalid returnData' });
+    }
+
     order.transactionId = transactionId;
     order.paymentMethod = 'tilopay';
 

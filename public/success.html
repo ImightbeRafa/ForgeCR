@@ -121,31 +121,50 @@
   </div>
 
   <script>
+    // === DIAGNOSTIC LOGGING (remove after Tilopay flow is confirmed working) ===
+    console.log('[Success] full URL:', window.location.href);
+    console.log('[Success] search string:', window.location.search);
+
     const params = new URLSearchParams(window.location.search);
-    const orderId = params.get('orderId');
+    const allParams = Object.fromEntries(params.entries());
+    console.log('[Success] parsed params:', allParams);
+
+    const orderId = params.get('orderId') || params.get('order');
     const code = params.get('code');
-    const returnData = params.get('returnData');
+    const rawReturnData = params.get('returnData');
+    // URLSearchParams decodes '+' as space; restore it for base64 integrity
+    const returnData = rawReturnData ? rawReturnData.replace(/ /g, '+') : null;
     const txnId = params.get('tilopay-transaction') || params.get('transactionId');
     const method = params.get('method');
 
-    // Display order ID
+    console.log('[Success] orderId=', orderId, '| code=', code, '| txnId=', txnId, '| method=', method);
+    console.log('[Success] rawReturnData length=', rawReturnData?.length || 0, '| repaired length=', returnData?.length || 0);
+    if (returnData) {
+      try {
+        const decoded = atob(returnData);
+        console.log('[Success] returnData decoded OK, first 200 chars:', decoded.slice(0, 200));
+      } catch (e) {
+        console.error('[Success] returnData base64 decode FAILED:', e.message);
+      }
+    } else {
+      console.warn('[Success] NO returnData in URL — confirm endpoint will reject');
+    }
+    // === END DIAGNOSTIC ===
+
     if (orderId) {
       document.getElementById('orderId').textContent = `Pedido #${orderId}`;
     }
 
-    // SINPE note
     if (method === 'sinpe') {
       document.getElementById('paymentNote').innerHTML =
         'Tu pedido fue recibido. <strong>El pago por SINPE Móvil está pendiente de verificación.</strong> Te notificaremos por correo una vez confirmado.';
     }
 
-    // Tilopay confirm flow
     if (code === '1' && returnData) {
       const purchaseKey = `forge_purchase_${orderId}`;
       if (!sessionStorage.getItem(purchaseKey)) {
         sessionStorage.setItem(purchaseKey, '1');
 
-        // Browser-side Purchase pixel
         if (typeof fbq === 'function') {
           const eventId = `purchase_${orderId}_${txnId || 'unknown'}`;
           fbq('track', 'Purchase', {
@@ -157,23 +176,24 @@
           }, { eventID: eventId });
         }
 
-        // Server-side confirm
+        console.log('[Success] POST /api/tilopay/confirm');
         fetch('/api/tilopay/confirm', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            returnData,
-            code,
-            transactionId: txnId
-          })
-        }).then(r => r.json())
-          .then(data => {
-            if (data.orderId) {
-              document.getElementById('orderId').textContent = `Pedido #${data.orderId}`;
+          body: JSON.stringify({ returnData, code, transactionId: txnId })
+        }).then(r => r.json().then(d => ({ status: r.status, body: d })))
+          .then(({ status, body }) => {
+            console.log('[Success] confirm response', status, body);
+            if (body && body.orderId) {
+              document.getElementById('orderId').textContent = `Pedido #${body.orderId}`;
             }
           })
-          .catch(err => console.error('Confirm error:', err));
+          .catch(err => console.error('[Success] confirm fetch error:', err));
+      } else {
+        console.log('[Success] confirm already fired for', purchaseKey);
       }
+    } else {
+      console.warn('[Success] confirm SKIPPED. code=', code, 'hasReturnData=', !!returnData);
     }
   </script>
 </body>
