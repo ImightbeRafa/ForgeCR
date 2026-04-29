@@ -487,3 +487,15 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
     }
   });
 });
+
+/* ---- Hide floating order CTA while checkout is in view ---- */
+const orderSection = document.getElementById('pedido');
+if (orderSection && 'IntersectionObserver' in window) {
+  const orderObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      document.body.classList.toggle('order-in-view', entry.isIntersecting);
+    });
+  }, { threshold: 0.12 });
+
+  orderObserver.observe(orderSection);
+}
