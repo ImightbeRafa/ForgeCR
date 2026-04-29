@@ -175,11 +175,11 @@
             <a href="#tallas" class="product__sizes-guide">Guía de Tallas</a>
           </div>
           <div class="size-chips" id="sizeChips">
-            <button class="size-chip" data-size="M/L" data-stock="22">M/L</button>
-            <button class="size-chip" data-size="XL" data-stock="32">XL</button>
-            <button class="size-chip" data-size="2XL" data-stock="28">2XL</button>
-            <button class="size-chip" data-size="3XL" data-stock="12">3XL</button>
-            <button class="size-chip" data-size="4XL" data-stock="6">4XL</button>
+            <button class="size-chip" data-size="M/L" data-stock="22" data-height="155-165 cm" data-weight="51-60 kg">M/L</button>
+            <button class="size-chip" data-size="XL" data-stock="32" data-height="160-170 cm" data-weight="61-70 kg">XL</button>
+            <button class="size-chip" data-size="2XL" data-stock="28" data-height="165-175 cm" data-weight="71-80 kg">2XL</button>
+            <button class="size-chip" data-size="3XL" data-stock="12" data-height="170-180 cm" data-weight="81-90 kg">3XL</button>
+            <button class="size-chip" data-size="4XL" data-stock="6" data-height="175-185 cm" data-weight="91-100 kg">4XL</button>
           </div>
           <p class="product__stock" id="stockIndicator"></p>
         </div>
@@ -720,6 +720,16 @@
     <span class="sticky-order-cta__label">Ordenar Ahora</span>
     <span class="sticky-order-cta__price">14,900 CRC</span>
   </a>
+
+  <div class="mobile-size-popup" id="mobileSizePopup" aria-live="polite" aria-hidden="true">
+    <button class="mobile-size-popup__close" id="mobileSizePopupClose" type="button" aria-label="Cerrar">&times;</button>
+    <span class="mobile-size-popup__eyebrow">Talla seleccionada</span>
+    <strong class="mobile-size-popup__title" id="mobileSizePopupTitle">Talla M/L</strong>
+    <div class="mobile-size-popup__details">
+      <span><span class="material-symbols-outlined">height</span><span id="mobileSizePopupHeight">155-165 cm</span></span>
+      <span><span class="material-symbols-outlined">monitor_weight</span><span id="mobileSizePopupWeight">51-60 kg</span></span>
+    </div>
+  </div>
 
   <!-- Loading Overlay -->
   <div class="loading-overlay" id="loadingOverlay">

@@ -173,6 +173,7 @@ sizeChips.forEach(chip => {
     sizeChips.forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
     selectSize(size, stock);
+    showMobileSizePopup(chip);
 
     if (addToCartBtn) addToCartBtn.disabled = false;
   });
@@ -186,6 +187,66 @@ const orderStockIndicator = document.getElementById('orderStockIndicator');
 const orderQtyMinus = document.getElementById('orderQtyMinus');
 const orderQtyPlus = document.getElementById('orderQtyPlus');
 const orderQtyValue = document.getElementById('orderQtyValue');
+const mobileSizePopup = document.getElementById('mobileSizePopup');
+const mobileSizePopupClose = document.getElementById('mobileSizePopupClose');
+const mobileSizePopupTitle = document.getElementById('mobileSizePopupTitle');
+const mobileSizePopupHeight = document.getElementById('mobileSizePopupHeight');
+const mobileSizePopupWeight = document.getElementById('mobileSizePopupWeight');
+let mobileSizePopupTimer;
+
+const SIZE_DETAILS = {
+  'M/L': { height: '155-165 cm', weight: '51-60 kg' },
+  XL: { height: '160-170 cm', weight: '61-70 kg' },
+  '2XL': { height: '165-175 cm', weight: '71-80 kg' },
+  '3XL': { height: '170-180 cm', weight: '81-90 kg' },
+  '4XL': { height: '175-185 cm', weight: '91-100 kg' }
+};
+
+function isMobileViewport() {
+  return window.matchMedia('(max-width: 768px)').matches;
+}
+
+function showMobileSizePopup(chip) {
+  if (!mobileSizePopup || !isMobileViewport()) return;
+
+  const size = chip.dataset.size;
+  const details = SIZE_DETAILS[size] || {};
+  const height = chip.dataset.height || details.height;
+  const weight = chip.dataset.weight || details.weight;
+
+  if (!height || !weight) return;
+
+  mobileSizePopupTitle.textContent = `Talla ${size}`;
+  mobileSizePopupHeight.textContent = `Altura aprox. ${height}`;
+  mobileSizePopupWeight.textContent = `Peso aprox. ${weight}`;
+  mobileSizePopup.classList.add('active');
+  mobileSizePopup.setAttribute('aria-hidden', 'false');
+
+  window.clearTimeout(mobileSizePopupTimer);
+  mobileSizePopupTimer = window.setTimeout(hideMobileSizePopup, 4200);
+}
+
+function hideMobileSizePopup() {
+  if (!mobileSizePopup) return;
+  mobileSizePopup.classList.remove('active');
+  mobileSizePopup.setAttribute('aria-hidden', 'true');
+  window.clearTimeout(mobileSizePopupTimer);
+}
+
+if (mobileSizePopupClose) {
+  mobileSizePopupClose.addEventListener('click', hideMobileSizePopup);
+}
+
+document.addEventListener('click', (event) => {
+  if (!mobileSizePopup?.classList.contains('active')) return;
+  const clickedSize = event.target.closest('.size-chip, .order__size-chip');
+  if (clickedSize || mobileSizePopup.contains(event.target)) return;
+  hideMobileSizePopup();
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') hideMobileSizePopup();
+});
 
 function selectSize(size, stock) {
   state.selectedSize = size;
@@ -233,6 +294,7 @@ orderSizeChips.forEach(chip => {
   chip.addEventListener('click', () => {
     if (stock <= 0) return;
     selectSize(size, stock);
+    showMobileSizePopup(chip);
   });
 });
 
