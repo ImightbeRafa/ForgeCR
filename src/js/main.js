@@ -1,11 +1,13 @@
+import { FORGE_PRODUCT, calculateOrderTotals } from '../../shared/order.js';
+
 /* ============================================
    FORGE COSTA RICA — Frontend Logic
    ============================================ */
 
 const PRODUCT = {
-  name: 'Arnés ForgeCR',
-  price: 14900,
-  currency: 'CRC',
+  name: FORGE_PRODUCT.name,
+  price: FORGE_PRODUCT.unitPrice,
+  currency: FORGE_PRODUCT.currency,
   sizes: {
     'M/L': 22,
     XL: 32,
@@ -367,16 +369,17 @@ if (addToCartBtn) {
    LIVE ORDER SUMMARY (checkout card)
    ============================================ */
 function updateLiveSummary() {
-  const subtotal = PRODUCT.price * state.quantity;
-  const formatted = formatCRC(subtotal);
+  const { subtotal, shippingCost, total } = calculateOrderTotals(state.quantity);
 
   const liveSubtotal = document.getElementById('liveSubtotal');
+  const liveShipping = document.getElementById('liveShipping');
   const liveTotal = document.getElementById('liveTotal');
   const submitTotal = document.getElementById('submitTotal');
 
-  if (liveSubtotal) liveSubtotal.textContent = formatted;
-  if (liveTotal) liveTotal.textContent = formatted;
-  if (submitTotal) submitTotal.textContent = subtotal.toLocaleString('es-CR');
+  if (liveSubtotal) liveSubtotal.textContent = formatCRC(subtotal);
+  if (liveShipping) liveShipping.textContent = formatCRC(shippingCost);
+  if (liveTotal) liveTotal.textContent = formatCRC(total);
+  if (submitTotal) submitTotal.textContent = total.toLocaleString('es-CR');
 }
 
 /* ============================================
@@ -467,7 +470,7 @@ orderForm.addEventListener('submit', async (e) => {
 
   const orderId = generateOrderId();
   const paymentMethod = 'tilopay';
-  const subtotal = PRODUCT.price * state.quantity;
+  const { subtotal, shippingCost, total } = calculateOrderTotals(state.quantity);
 
   const orderData = {
     orderId,
@@ -487,9 +490,11 @@ orderForm.addEventListener('submit', async (e) => {
       province: document.getElementById('provincia').value,
       canton: document.getElementById('canton').value.trim(),
       district: document.getElementById('distrito').value.trim(),
-      address: document.getElementById('direccion').value.trim()
+      address: document.getElementById('direccion').value.trim(),
+      cost: shippingCost
     },
-    total: subtotal,
+    subtotal,
+    total,
     paymentMethod,
     comments: document.getElementById('comments').value.trim(),
     createdAt: new Date().toISOString()

@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "preview:email": "node scripts/preview-email.mjs",
+    "test": "node --test --test-isolation=none",
     "server": "node server/index.js",
     "dev:full": "concurrently \"npm run dev\" \"npm run server\""
   },

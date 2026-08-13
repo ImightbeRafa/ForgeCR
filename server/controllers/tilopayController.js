@@ -1,6 +1,7 @@
 import { createHmac } from 'crypto';
 import { sendOrderEmails } from '../utils/email.js';
 import { sendOrderToBetsyWithRetry } from '../utils/betsy.js';
+import { normalizeTrustedOrder } from '../../shared/order.js';
 
 const BASE_URL = process.env.TILOPAY_BASE_URL || 'https://app.tilopay.com/api/v1';
 const SITE_URL = process.env.SITE_URL || 'http://localhost:5173';
@@ -21,7 +22,7 @@ async function authenticate() {
 
 export async function createPayment(req, res) {
   try {
-    const order = req.body;
+    const order = normalizeTrustedOrder(req.body);
     const token = await authenticate();
 
     const returnData = Buffer.from(JSON.stringify({
@@ -29,6 +30,7 @@ export async function createPayment(req, res) {
       customer: order.customer,
       product: order.product,
       shipping: order.shipping,
+      subtotal: order.subtotal,
       total: order.total,
       paymentMethod: 'tilopay',
       comments: order.comments,
@@ -68,7 +70,8 @@ export async function createPayment(req, res) {
     return res.json({ paymentUrl: payData.url });
   } catch (err) {
     console.error('[Tilopay Create]', err);
-    return res.status(500).json({ error: 'Payment creation failed' });
+    const status = err instanceof TypeError ? 400 : 500;
+    return res.status(status).json({ error: status === 400 ? err.message : 'Payment creation failed' });
   }
 }
 
@@ -82,7 +85,7 @@ export async function confirmPayment(req, res) {
 
     let order;
     try {
-      order = JSON.parse(Buffer.from(returnData, 'base64').toString('utf-8'));
+      order = normalizeTrustedOrder(JSON.parse(Buffer.from(returnData, 'base64').toString('utf-8')));
     } catch (e) {
       console.error('[Confirm] returnData decode failed:', e.message);
       return res.status(400).json({ error: 'Invalid returnData' });
@@ -120,7 +123,7 @@ export async function handleWebhook(req, res) {
     }
 
     const decoded = Buffer.from(returnData, 'base64').toString('utf-8');
-    const order = JSON.parse(decoded);
+    const order = normalizeTrustedOrder(JSON.parse(decoded));
     order.transactionId = transactionId;
     order.paymentMethod = 'tilopay';
 

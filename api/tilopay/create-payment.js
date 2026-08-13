@@ -1,5 +1,6 @@
 /* Tilopay — Create Payment */
 import { buildUserData, generateEventId, sendMetaEvent } from '../utils/meta.js';
+import { normalizeTrustedOrder } from '../../shared/order.js';
 
 const BASE_URL = process.env.TILOPAY_BASE_URL || 'https://app.tilopay.com/api/v1';
 const SITE_URL = process.env.SITE_URL || 'https://forge.shopping';
@@ -24,7 +25,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const order = req.body;
+    const order = normalizeTrustedOrder(req.body);
     const token = await authenticate();
 
     const returnData = Buffer.from(JSON.stringify({
@@ -32,6 +33,7 @@ export default async function handler(req, res) {
       customer: order.customer,
       product: order.product,
       shipping: order.shipping,
+      subtotal: order.subtotal,
       total: order.total,
       paymentMethod: 'tilopay',
       comments: order.comments,
@@ -113,6 +115,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ paymentUrl: payData.url });
   } catch (err) {
     console.error('[Tilopay] Create payment error:', err);
-    return res.status(500).json({ error: 'Payment processing failed' });
+    const status = err instanceof TypeError ? 400 : 500;
+    return res.status(status).json({ error: status === 400 ? err.message : 'Payment processing failed' });
   }
 }

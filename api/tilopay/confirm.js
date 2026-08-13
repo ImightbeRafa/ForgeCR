@@ -2,6 +2,7 @@
 import { sendOrderEmails } from '../utils/email.js';
 import { sendOrderToBetsyWithRetry } from '../utils/betsy.js';
 import { buildUserData, generateEventId, sendMetaEvent } from '../utils/meta.js';
+import { normalizeTrustedOrder } from '../../shared/order.js';
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
     let order;
     try {
       const decoded = Buffer.from(returnData, 'base64').toString('utf-8');
-      order = JSON.parse(decoded);
+      order = normalizeTrustedOrder(JSON.parse(decoded));
     } catch (e) {
       console.error('[Confirm] returnData decode failed:', e.message);
       return res.status(400).json({ error: 'Invalid returnData' });

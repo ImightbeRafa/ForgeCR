@@ -2,75 +2,121 @@
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const ADMIN_EMAIL = process.env.ORDER_NOTIFICATION_EMAIL;
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Forge Costa Rica <orders@forge.shopping>';
+const SITE_URL = (process.env.SITE_URL || 'https://forge.shopping').replace(/\/$/, '');
+const LOGO_URL = `${SITE_URL}/images/forgecr-logo.png`;
 
 function formatCRC(amount) {
   return `₡${Number(amount).toLocaleString('es-CR')}`;
 }
 
-function customerEmailHTML(order) {
+function escapeHTML(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+export function customerEmailHTML(order) {
   const isSinpe = order.paymentMethod === 'sinpe';
+  const subtotal = formatCRC(order.subtotal);
+  const shipping = formatCRC(order.shipping.cost);
   const total = formatCRC(order.total);
+  const firstName = escapeHTML(order.customer.firstName);
+  const orderId = escapeHTML(order.orderId);
+  const productName = escapeHTML(order.product.name);
+  const size = escapeHTML(order.product.size);
+  const quantity = escapeHTML(order.product.quantity);
+  const address = escapeHTML(order.shipping.address);
+  const district = escapeHTML(order.shipping.district);
+  const canton = escapeHTML(order.shipping.canton);
+  const province = escapeHTML(order.shipping.province);
+  const whatsappNumber = String(process.env.WHATSAPP_NUMBER || '50671618029').replace(/\D/g, '');
+  const statusColor = isSinpe ? '#E5A84D' : '#3EBD7A';
+  const statusBackground = isSinpe ? '#2B2315' : '#13271D';
+  const statusLabel = isSinpe ? 'PAGO PENDIENTE' : 'PAGO CONFIRMADO';
+  const headline = isSinpe ? 'Recibimos tu pedido' : '¡Tu pedido está confirmado!';
+  const statusMessage = isSinpe
+    ? `Confirmaremos tu pedido cuando verifiquemos la transferencia SINPE por ${total}.`
+    : 'Tu pago fue procesado correctamente. Ahora prepararemos tu pedido para el envío.';
 
   return `
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"/></head>
-<body style="margin:0;padding:0;background:#0A0A0C;font-family:Arial,Helvetica,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0A0A0C;padding:40px 0;">
-    <tr><td align="center">
-      <table width="560" cellpadding="0" cellspacing="0" style="background:#16161C;border-radius:6px;overflow:hidden;">
-        <!-- Header -->
-        <tr><td style="background:#16161C;padding:32px;text-align:center;border-bottom:1px solid #2A2A32;">
-          <h1 style="margin:0;font-size:24px;color:#EAEAEC;font-weight:700;">FORGE</h1>
-          <p style="margin:4px 0 0;font-size:12px;color:#8A8A94;letter-spacing:0.1em;text-transform:uppercase;">Costa Rica</p>
+<html lang="es"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Pedido ${orderId} | ForgeCR</title>
+</head>
+<body style="margin:0;padding:0;background:#08080A;font-family:Arial,Helvetica,sans-serif;color:#EAEAEC;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${headline} — Pedido ${orderId}</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#08080A;">
+    <tr><td align="center" style="padding:32px 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#151519;border:1px solid #2A2A32;border-radius:12px;overflow:hidden;">
+        <tr><td style="height:4px;background:#D44147;font-size:0;line-height:0;">&nbsp;</td></tr>
+        <tr><td align="center" style="background:#000000;padding:26px 24px 20px;">
+          <a href="${SITE_URL}" style="text-decoration:none;">
+            <img src="${LOGO_URL}" width="230" alt="ForgeCR" style="display:block;width:230px;max-width:100%;height:auto;border:0;margin:0 auto;"/>
+          </a>
+          <p style="margin:12px 0 0;font-size:10px;line-height:1.4;color:#8A8A94;letter-spacing:2px;text-transform:uppercase;">Equipo de postura · Costa Rica</p>
         </td></tr>
 
-        <!-- Body -->
-        <tr><td style="padding:32px;">
-          <h2 style="margin:0 0 8px;font-size:20px;color:#EAEAEC;">¡Gracias por tu pedido!</h2>
-          <p style="margin:0 0 24px;font-size:14px;color:#8A8A94;line-height:1.6;">
-            Hola ${order.customer.firstName}, tu pedido <strong style="color:#EAEAEC;">#${order.orderId}</strong> ha sido ${isSinpe ? 'recibido y está pendiente de verificación' : 'confirmado'}.
-          </p>
+        <tr><td style="padding:36px 34px 30px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+            <td style="background:${statusBackground};border:1px solid ${statusColor};border-radius:999px;padding:6px 11px;font-size:10px;line-height:1;color:${statusColor};font-weight:700;letter-spacing:1.2px;">${statusLabel}</td>
+          </tr></table>
+          <h1 style="margin:18px 0 10px;font-size:27px;line-height:1.2;color:#FFFFFF;font-weight:700;">${headline}</h1>
+          <p style="margin:0 0 8px;font-size:15px;color:#B9B9C2;line-height:1.65;">Hola ${firstName},</p>
+          <p style="margin:0 0 26px;font-size:15px;color:#B9B9C2;line-height:1.65;">${statusMessage}</p>
 
-          <!-- Order details -->
-          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-            <tr style="border-bottom:1px solid #2A2A32;">
-              <td style="padding:12px 0;font-size:14px;color:#EAEAEC;font-weight:600;">Arnés ForgeCR — Talla ${order.product.size}</td>
-              <td style="padding:12px 0;font-size:14px;color:#EAEAEC;text-align:right;">x${order.product.quantity}</td>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0E0E12;border:1px solid #2A2A32;border-radius:8px;">
+            <tr><td colspan="2" style="padding:17px 20px;border-bottom:1px solid #2A2A32;">
+              <p style="margin:0;font-size:10px;color:#777783;letter-spacing:1.4px;text-transform:uppercase;">Resumen del pedido</p>
+              <p style="margin:6px 0 0;font-size:13px;color:#EAEAEC;font-weight:700;">#${orderId}</p>
+            </td></tr>
+            <tr>
+              <td style="padding:18px 20px 15px;font-size:14px;color:#EAEAEC;font-weight:700;">${productName}<br/><span style="font-size:12px;color:#8A8A94;font-weight:400;">Talla ${size}</span></td>
+              <td align="right" style="padding:18px 20px 15px;font-size:13px;color:#B9B9C2;vertical-align:top;">Cant. ${quantity}</td>
             </tr>
             <tr>
-              <td style="padding:16px 0 0;font-size:16px;color:#EAEAEC;font-weight:700;">Total</td>
-              <td style="padding:16px 0 0;font-size:16px;color:#D44147;font-weight:700;text-align:right;">${total}</td>
+              <td style="padding:4px 20px;font-size:13px;color:#8A8A94;">Subtotal</td>
+              <td align="right" style="padding:4px 20px;font-size:13px;color:#B9B9C2;">${subtotal}</td>
+            </tr>
+            <tr>
+              <td style="padding:4px 20px 15px;font-size:13px;color:#8A8A94;">Envío</td>
+              <td align="right" style="padding:4px 20px 15px;font-size:13px;color:#B9B9C2;">${shipping}</td>
+            </tr>
+            <tr>
+              <td style="padding:16px 20px;border-top:1px solid #2A2A32;font-size:15px;color:#FFFFFF;font-weight:700;">Total</td>
+              <td align="right" style="padding:16px 20px;border-top:1px solid #2A2A32;font-size:19px;color:#D44147;font-weight:700;">${total}</td>
             </tr>
           </table>
 
-          ${isSinpe ? `
-          <div style="background:#101014;border:1px solid #2A2A32;border-radius:4px;padding:16px;margin-bottom:24px;">
-            <p style="margin:0 0 8px;font-size:13px;color:#D44147;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Pago Pendiente — SINPE Móvil</p>
-            <p style="margin:0;font-size:14px;color:#8A8A94;line-height:1.6;">Tu pedido será procesado una vez confirmemos el pago. Si aún no has realizado la transferencia, enviá ${total} al número SINPE indicado.</p>
-          </div>
-          ` : `
-          <div style="background:#101014;border:1px solid #2A2A32;border-radius:4px;padding:16px;margin-bottom:24px;">
-            <p style="margin:0 0 8px;font-size:13px;color:#3EBD7A;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Pago Confirmado</p>
-            <p style="margin:0;font-size:14px;color:#8A8A94;line-height:1.6;">Tu pago fue procesado exitosamente. Prepararemos tu envío lo antes posible.</p>
-          </div>
-          `}
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:18px;background:#1B1B21;border-radius:8px;">
+            <tr><td style="padding:18px 20px;">
+              <p style="margin:0 0 7px;font-size:10px;color:#777783;letter-spacing:1.4px;text-transform:uppercase;font-weight:700;">Dirección de envío</p>
+              <p style="margin:0;font-size:14px;color:#EAEAEC;line-height:1.65;">${address}<br/>${district}, ${canton}<br/>${province}, Costa Rica</p>
+            </td></tr>
+          </table>
 
-          <!-- Shipping -->
-          <p style="margin:0 0 4px;font-size:12px;color:#8A8A94;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;">Dirección de envío</p>
-          <p style="margin:0 0 24px;font-size:14px;color:#EAEAEC;line-height:1.6;">
-            ${order.shipping.address}<br/>
-            ${order.shipping.district}, ${order.shipping.canton}<br/>
-            ${order.shipping.province}, Costa Rica
-          </p>
+          ${isSinpe ? '' : `
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:18px;">
+            <tr>
+              <td width="28" valign="top" style="font-size:18px;color:#3EBD7A;">✓</td>
+              <td style="font-size:13px;color:#A7A7B0;line-height:1.55;"><strong style="color:#EAEAEC;">Siguiente paso:</strong> prepararemos tu pedido y coordinaremos el envío. La entrega suele tomar entre 3 y 4 días hábiles.</td>
+            </tr>
+          </table>`}
 
-          <p style="margin:0;font-size:13px;color:#8A8A94;line-height:1.6;">
-            ¿Tenés alguna pregunta? Escribinos por <a href="https://wa.me/${process.env.WHATSAPP_NUMBER || '50671618029'}" style="color:#D44147;">WhatsApp</a>.
-          </p>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:30px;">
+            <tr><td align="center">
+              <a href="https://wa.me/${whatsappNumber}" style="display:inline-block;background:#D44147;color:#FFFFFF;text-decoration:none;font-size:13px;font-weight:700;line-height:1;padding:14px 22px;border-radius:6px;">¿Necesitás ayuda? Escribinos</a>
+            </td></tr>
+          </table>
+          <p style="margin:16px 0 0;text-align:center;font-size:11px;color:#686872;line-height:1.5;">Conservá este correo como comprobante de tu pedido.</p>
         </td></tr>
 
-        <!-- Footer -->
-        <tr><td style="padding:24px 32px;border-top:1px solid #2A2A32;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#555560;">© 2026 Forge Costa Rica. Todos los derechos reservados.</p>
+        <tr><td align="center" style="padding:22px 24px;border-top:1px solid #2A2A32;background:#101014;">
+          <p style="margin:0 0 5px;font-size:12px;color:#A7A7B0;font-weight:700;">ForgeCR · Costa Rica</p>
+          <p style="margin:0;font-size:10px;color:#555560;line-height:1.5;">Materiales de calidad para acompañar tu rendimiento.</p>
+          <p style="margin:10px 0 0;font-size:10px;color:#555560;">© 2026 Forge Costa Rica. Todos los derechos reservados.</p>
         </td></tr>
       </table>
     </td></tr>
@@ -79,6 +125,8 @@ function customerEmailHTML(order) {
 }
 
 function adminEmailHTML(order) {
+  const subtotal = formatCRC(order.subtotal);
+  const shipping = formatCRC(order.shipping.cost);
   const total = formatCRC(order.total);
   const method = order.paymentMethod === 'sinpe' ? 'SINPE Móvil' : 'Tilopay (Tarjeta)';
   const status = order.paymentMethod === 'sinpe' ? 'PENDIENTE' : 'PAGADO';
@@ -103,7 +151,9 @@ function adminEmailHTML(order) {
           <h3 style="margin:0 0 12px;font-size:14px;color:#666;text-transform:uppercase;letter-spacing:0.05em;">Producto</h3>
           <p style="margin:0 0 4px;font-size:15px;"><strong>${order.product.name}</strong> — Talla ${order.product.size}</p>
           <p style="margin:0 0 4px;font-size:14px;">Cantidad: ${order.product.quantity}</p>
-          <p style="margin:0 0 20px;font-size:16px;font-weight:700;color:#D44147;">${total}</p>
+          <p style="margin:0 0 4px;font-size:14px;">Subtotal: ${subtotal}</p>
+          <p style="margin:0 0 4px;font-size:14px;">Envío: ${shipping}</p>
+          <p style="margin:0 0 20px;font-size:16px;font-weight:700;color:#D44147;">Total: ${total}</p>
 
           <h3 style="margin:0 0 12px;font-size:14px;color:#666;text-transform:uppercase;letter-spacing:0.05em;">Envío</h3>
           <p style="margin:0 0 4px;font-size:14px;">${order.shipping.address}</p>

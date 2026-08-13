@@ -15,11 +15,12 @@ function buildBetsyPayload(order) {
     product: {
       name: order.product.name,
       quantity: order.product.quantity,
-      unitPrice: String(order.product.unitPrice)
+      unitPrice: String(order.product.unitPrice),
+      total: String(order.subtotal)
     },
     shipping: {
-      cost: '0',
-      courier: 'Correos de Costa Rica',
+      cost: String(order.shipping.cost),
+      courier: order.shipping.courier,
       address: {
         province: order.shipping.province,
         canton: order.shipping.canton,
@@ -27,7 +28,8 @@ function buildBetsyPayload(order) {
         fullAddress: order.shipping.address
       }
     },
-    total: `₡${Number(order.total).toLocaleString('es-CR')}`,
+    subtotal: String(order.subtotal),
+    total: String(order.total),
     payment: {
       method: isSinpe ? 'SINPE' : 'Tilopay',
       transactionId: order.transactionId || order.sinpeRef || '',

@@ -3,6 +3,7 @@ import { createHmac } from 'crypto';
 import { sendOrderEmails } from '../utils/email.js';
 import { sendOrderToBetsyWithRetry } from '../utils/betsy.js';
 import { buildUserData, generateEventId, sendMetaEvent } from '../utils/meta.js';
+import { normalizeTrustedOrder } from '../../shared/order.js';
 
 function verifyHMAC(body, signature) {
   const secret = process.env.TILOPAY_WEBHOOK_SECRET;
@@ -33,7 +34,7 @@ export default async function handler(req, res) {
     let order;
     try {
       const decoded = Buffer.from(returnData, 'base64').toString('utf-8');
-      order = JSON.parse(decoded);
+      order = normalizeTrustedOrder(JSON.parse(decoded));
     } catch (e) {
       console.error('[Webhook] Invalid returnData');
       return res.status(400).json({ error: 'Invalid returnData' });
