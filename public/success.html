@@ -4,23 +4,68 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pedido Confirmado — Forge Costa Rica</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preload" href="/fonts/space-grotesk-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
-  <!-- Meta Pixel -->
+  <!-- Meta Pixel: queue events now, load SDK after first paint -->
   <script>
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-    document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '983130057569210');
-    fbq('track', 'PageView');
+    (function (window, document) {
+      if (window.fbq) return;
+      var fbq = window.fbq = function () {
+        fbq.callMethod ? fbq.callMethod.apply(fbq, arguments) : fbq.queue.push(arguments);
+      };
+      if (!window._fbq) window._fbq = fbq;
+      fbq.push = fbq;
+      fbq.loaded = true;
+      fbq.version = '2.0';
+      fbq.queue = [];
+      fbq('init', '983130057569210');
+      fbq('track', 'PageView');
+
+      function loadPixel() {
+        if (window.__forgePixelLoaded) return;
+        window.__forgePixelLoaded = true;
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://connect.facebook.net/en_US/fbevents.js';
+        document.head.appendChild(script);
+      }
+
+      try {
+        var observer = new PerformanceObserver(function (list) {
+          var entries = list.getEntries();
+          for (var i = 0; i < entries.length; i++) {
+            if (entries[i].name === 'first-contentful-paint') {
+              observer.disconnect();
+              loadPixel();
+              break;
+            }
+          }
+        });
+        observer.observe({ type: 'paint', buffered: true });
+      } catch (err) {
+        window.addEventListener('load', loadPixel);
+      }
+      window.addEventListener('load', loadPixel);
+      setTimeout(loadPixel, 3000);
+    })(window, document);
   </script>
 
   <style>
+    @font-face {
+      font-family: 'Space Grotesk';
+      font-style: normal;
+      font-display: swap;
+      font-weight: 300 700;
+      src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Manrope';
+      font-style: normal;
+      font-display: swap;
+      font-weight: 200 800;
+      src: url('/fonts/manrope-latin-wght-normal.woff2') format('woff2');
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Manrope', sans-serif;
@@ -69,7 +114,7 @@
     }
     .success-note {
       font-size: 0.875rem;
-      color: #555560;
+      color: #8A8A94;
       line-height: 1.5;
       margin-bottom: 32px;
       padding: 16px;

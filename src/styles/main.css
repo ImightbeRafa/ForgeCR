@@ -73,6 +73,42 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 700;
+  src: url('/fonts/space-grotesk-latin-ext-wght-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 700;
+  src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('/fonts/manrope-latin-ext-wght-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('/fonts/manrope-latin-wght-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 @media (max-width: 768px) {
   button, a, label, input, select, textarea, summary {
     -webkit-tap-highlight-color: transparent;
@@ -81,7 +117,7 @@ html {
 }
 
 body {
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-weight: 400;
   font-size: 1rem;
   line-height: 1.65;
@@ -120,13 +156,14 @@ button {
   background: none;
 }
 
-/* Material Symbols */
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-}
-
-.star-filled {
-  font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+/* Icons */
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentColor;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: -0.15em;
 }
 
 /* ---- Typography ---- */
@@ -257,7 +294,6 @@ h3 { font-size: 1.5rem; font-weight: 600; }
   0% {
     transform: skewX(-6deg) rotate(-2deg);
     opacity: 0.6;
-    letter-spacing: 0.02em;
   }
   60% {
     transform: skewX(1deg) rotate(0.3deg);
@@ -266,7 +302,6 @@ h3 { font-size: 1.5rem; font-weight: 600; }
   100% {
     transform: skewX(0) rotate(0);
     opacity: 1;
-    letter-spacing: -0.03em;
   }
 }
 
@@ -372,7 +407,7 @@ h3 { font-size: 1.5rem; font-weight: 600; }
     letter-spacing: 0.08em;
   }
   .header__cart { padding: 8px; }
-  .header__cart .material-symbols-outlined { font-size: 22px; }
+  .header__cart .icon { width: 22px; height: 22px; }
 }
 
 /* ---- Mobile Drawer ---- */
@@ -462,6 +497,12 @@ h3 { font-size: 1.5rem; font-weight: 600; }
   z-index: 0;
 }
 
+.hero__picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .hero__bg-img {
   width: 100%;
   height: 100%;
@@ -531,9 +572,10 @@ h3 { font-size: 1.5rem; font-weight: 600; }
   text-transform: uppercase;
 }
 
-.hero__proof .material-symbols-outlined {
+.hero__proof .icon {
   color: var(--action-lime);
-  font-size: 17px;
+  width: 17px;
+  height: 17px;
 }
 
 .hero__actions {
@@ -603,8 +645,21 @@ h3 { font-size: 1.5rem; font-weight: 600; }
     display: flex;
     align-items: flex-end;
   }
+  .hero__bg-img {
+    opacity: 0.92;
+    filter: saturate(0.88) contrast(1.12) brightness(1.18);
+    object-position: 50% 18%;
+  }
   .hero__gradient {
-    background: linear-gradient(to bottom, rgba(19,19,19,0.3) 0%, rgba(19,19,19,0.7) 40%, var(--surface) 85%);
+    background:
+      radial-gradient(ellipse at 72% 22%, rgba(199, 255, 0, 0.07), transparent 36%),
+      linear-gradient(
+        to bottom,
+        rgba(19, 19, 19, 0.04) 0%,
+        rgba(19, 19, 19, 0.12) 28%,
+        rgba(19, 19, 19, 0.72) 58%,
+        var(--surface) 88%
+      );
   }
   .hero__content { max-width: 100%; }
   .hero__headline {
@@ -998,8 +1053,9 @@ h3 { font-size: 1.5rem; font-weight: 600; }
   transition: color var(--dur-fast) var(--ease);
 }
 
-.quantity-btn .material-symbols-outlined {
-  font-size: 18px;
+.quantity-btn .icon {
+  width: 18px;
+  height: 18px;
 }
 
 .quantity-btn:hover {
@@ -1056,8 +1112,9 @@ h3 { font-size: 1.5rem; font-weight: 600; }
   color: var(--outline);
 }
 
-.product__badge .material-symbols-outlined {
-  font-size: 16px;
+.product__badge .icon {
+  width: 16px;
+  height: 16px;
 }
 
 /* ---- Accordions ---- */
@@ -1086,7 +1143,8 @@ h3 { font-size: 1.5rem; font-weight: 600; }
 }
 
 .accordion__icon {
-  font-size: 18px;
+  width: 18px;
+  height: 18px;
   color: var(--outline);
   transition: transform var(--dur-fast) var(--ease);
 }
@@ -1373,7 +1431,6 @@ details[open] .accordion__icon {
   font-size: 0.625rem;
   color: var(--outline);
   margin-top: 2px;
-  opacity: 0.5;
 }
 
 .size-guide__tip {
@@ -1385,9 +1442,10 @@ details[open] .accordion__icon {
   background: var(--surface-container);
 }
 
-.size-guide__tip .material-symbols-outlined {
+.size-guide__tip .icon {
   color: var(--outline);
-  font-size: 20px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
 
@@ -1432,9 +1490,10 @@ details[open] .accordion__icon {
   gap: 2px;
 }
 
-.testimonials__stars .material-symbols-outlined {
+.testimonials__stars .icon {
   color: var(--primary);
-  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 .testimonials__count {
@@ -1593,7 +1652,8 @@ details[open] .accordion__icon {
 }
 
 .faq-item__icon {
-  font-size: 18px;
+  width: 18px;
+  height: 18px;
   color: var(--outline);
   flex-shrink: 0;
   transition: transform var(--dur-fast) var(--ease);
@@ -1653,16 +1713,19 @@ details[open] .accordion__icon {
   display: flex;
   align-items: center;
   gap: var(--sp-xs);
-  opacity: 0.35;
-  transition: opacity var(--dur-normal) var(--ease);
+  transition: color var(--dur-normal) var(--ease);
+}
+
+.checkout-step:not(.checkout-step--active):not(.checkout-step--done) .checkout-step__label {
+  color: var(--outline);
 }
 
 .checkout-step--active {
-  opacity: 1;
+  color: inherit;
 }
 
 .checkout-step--done {
-  opacity: 0.7;
+  color: inherit;
 }
 
 .checkout-step__num {
@@ -1899,8 +1962,9 @@ details[open] .accordion__icon {
   line-height: 1.8;
 }
 
-.size-tooltip__row .material-symbols-outlined {
-  font-size: 16px;
+.size-tooltip__row .icon {
+  width: 16px;
+  height: 16px;
   color: var(--outline);
 }
 
@@ -1980,8 +2044,9 @@ details[open] .accordion__icon {
   color: var(--outline);
 }
 
-.order__badge .material-symbols-outlined {
-  font-size: 14px;
+.order__badge .icon {
+  width: 14px;
+  height: 14px;
 }
 
 .order__card-cta {
@@ -2168,8 +2233,9 @@ details[open] .accordion__icon {
   gap: var(--sp-xs);
 }
 
-.order__submit .material-symbols-outlined {
-  font-size: 18px;
+.order__submit .icon {
+  width: 18px;
+  height: 18px;
 }
 
 .order__secure-note {
@@ -2183,8 +2249,9 @@ details[open] .accordion__icon {
   letter-spacing: 0.05em;
 }
 
-.order__secure-note .material-symbols-outlined {
-  font-size: 14px;
+.order__secure-note .icon {
+  width: 14px;
+  height: 14px;
   color: var(--outline);
 }
 
@@ -2357,8 +2424,9 @@ details[open] .accordion__icon {
   color: var(--primary);
 }
 
-.footer__social .material-symbols-outlined {
-  font-size: 18px;
+.footer__social .icon {
+  width: 18px;
+  height: 18px;
 }
 
 @media (max-width: 768px) {
@@ -2506,9 +2574,10 @@ details[open] .accordion__icon {
   gap: 8px;
 }
 
-.mobile-size-popup__details .material-symbols-outlined {
+.mobile-size-popup__details .icon {
   color: var(--action-lime);
-  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 @media (max-width: 768px) {
@@ -2648,4 +2717,21 @@ details[open] .accordion__icon {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--outline-variant);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .reveal-up,
+  .reveal-right {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .btn--urgent::after,
+  .header__logo,
+  .loading-spinner {
+    animation: none;
+  }
 }
