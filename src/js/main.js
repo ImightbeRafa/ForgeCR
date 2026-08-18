@@ -148,6 +148,8 @@ thumbs.forEach(thumb => {
   thumb.addEventListener('click', () => {
     thumbs.forEach(t => t.classList.remove('active'));
     thumb.classList.add('active');
+    if (thumb.dataset.srcset) mainImage.srcset = thumb.dataset.srcset;
+    if (thumb.dataset.sizes) mainImage.sizes = thumb.dataset.sizes;
     mainImage.src = thumb.dataset.img;
     mainImage.alt = thumb.querySelector('img').alt;
   });
