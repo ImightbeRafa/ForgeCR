@@ -54,3 +54,20 @@ test('customer email escapes customer-supplied HTML', () => {
   assert.match(html, /&lt;b&gt;100 metros norte&lt;\/b&gt;/);
   assert.doesNotMatch(html, /<b>100 metros norte<\/b>/);
 });
+
+test('customer email WhatsApp link uses WHATSAPP_NUMBER', () => {
+  const previous = process.env.WHATSAPP_NUMBER;
+  process.env.WHATSAPP_NUMBER = '+506 9999-0000';
+
+  try {
+    const html = customerEmailHTML(emailOrder());
+    assert.match(html, /https:\/\/wa\.me\/50699990000/);
+    assert.doesNotMatch(html, /50671618029/);
+  } finally {
+    if (previous === undefined) {
+      delete process.env.WHATSAPP_NUMBER;
+    } else {
+      process.env.WHATSAPP_NUMBER = previous;
+    }
+  }
+});

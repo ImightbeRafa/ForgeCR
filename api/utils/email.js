@@ -1,3 +1,5 @@
+import { FALLBACK_WHATSAPP_NUMBER, normalizeWhatsappNumber } from '../../shared/whatsapp.js';
+
 /* Resend Email Service */
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const ADMIN_EMAIL = process.env.ORDER_NOTIFICATION_EMAIL;
@@ -32,7 +34,7 @@ export function customerEmailHTML(order) {
   const district = escapeHTML(order.shipping.district);
   const canton = escapeHTML(order.shipping.canton);
   const province = escapeHTML(order.shipping.province);
-  const whatsappNumber = String(process.env.WHATSAPP_NUMBER || '50671618029').replace(/\D/g, '');
+  const whatsappNumber = normalizeWhatsappNumber(process.env.WHATSAPP_NUMBER) || FALLBACK_WHATSAPP_NUMBER;
   const statusColor = isSinpe ? '#E5A84D' : '#3EBD7A';
   const statusBackground = isSinpe ? '#2B2315' : '#13271D';
   const statusLabel = isSinpe ? 'PAGO PENDIENTE' : 'PAGO CONFIRMADO';
