@@ -15,6 +15,17 @@
   <!-- Favicon -->
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
+  <!-- LCP hero image -->
+  <link
+    rel="preload"
+    as="image"
+    type="image/webp"
+    href="/images/forge-v1-1200.webp"
+    imagesrcset="/images/forge-v1-400.webp 400w, /images/forge-v1-800.webp 800w, /images/forge-v1-1200.webp 1200w, /images/forge-v1-1600.webp 1600w"
+    imagesizes="100vw"
+    fetchpriority="high"
+  />
+
   <!-- Meta Pixel -->
   <script>
     !function(f,b,e,v,n,t,s)
@@ -71,7 +82,17 @@
   <!-- ===================== HERO ===================== -->
   <section class="hero" id="hero">
     <div class="hero__bg">
-      <img src="/images/forge.jpg" alt="Arnés ForgeCR" class="hero__bg-img" />
+      <img
+        src="/images/forge-v1-1200.webp"
+        srcset="/images/forge-v1-400.webp 400w, /images/forge-v1-800.webp 800w, /images/forge-v1-1200.webp 1200w, /images/forge-v1-1600.webp 1600w"
+        sizes="100vw"
+        width="1200"
+        height="1200"
+        alt="Arnés ForgeCR"
+        class="hero__bg-img"
+        loading="eager"
+        fetchpriority="high"
+      />
       <div class="hero__gradient"></div>
     </div>
     <div class="container hero__inner">
@@ -111,13 +132,31 @@
             <p class="feature__desc">El Arnés ForgeCR utiliza correas de doble tensión para retraer los hombros mientras estabiliza la columna torácica, logrando una corrección inmediata que perdura durante entrenamientos de alta intensidad.</p>
           </div>
           <div class="feature__media reveal-up" data-delay="100">
-            <img src="/images/forge3.jpg" alt="Soporte de alto rendimiento" />
+            <img
+              src="/images/forge3-v1-800.webp"
+              srcset="/images/forge3-v1-400.webp 400w, /images/forge3-v1-800.webp 800w, /images/forge3-v1-1200.webp 1200w"
+              sizes="(max-width: 768px) calc(100vw - 48px), min(747px, 58vw)"
+              width="1200"
+              height="1200"
+              alt="Soporte de alto rendimiento"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
         </div>
         <!-- Feature 2 -->
         <div class="feature feature--reverse reveal-up">
           <div class="feature__media reveal-up" data-delay="100">
-            <img src="/images/forge2.jpg" alt="Material transpirable" />
+            <img
+              src="/images/forge2-v1-800.webp"
+              srcset="/images/forge2-v1-400.webp 400w, /images/forge2-v1-800.webp 800w, /images/forge2-v1-1200.webp 1200w"
+              sizes="(max-width: 768px) calc(100vw - 48px), min(747px, 58vw)"
+              width="1200"
+              height="1200"
+              alt="Material transpirable"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
           <div class="feature__text">
             <span class="feature__label">02 / Confort</span>
@@ -133,7 +172,16 @@
             <p class="feature__desc">Contorneado anatómicamente para reflejar la curva natural de la columna humana. Sin pellizcos ni roces. Simplemente alineación pura y enfocada para la anatomía moderna.</p>
           </div>
           <div class="feature__media reveal-up" data-delay="100">
-            <img src="/images/forge4.jpg" alt="Diseño ergonómico" />
+            <img
+              src="/images/forge4-v1-800.webp"
+              srcset="/images/forge4-v1-400.webp 400w, /images/forge4-v1-800.webp 800w, /images/forge4-v1-1200.webp 1200w"
+              sizes="(max-width: 768px) calc(100vw - 48px), min(747px, 58vw)"
+              width="1200"
+              height="1200"
+              alt="Diseño ergonómico"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
         </div>
       </div>
@@ -151,12 +199,46 @@
     <div class="container product__layout">
       <div class="product__gallery">
         <div class="product__main-image">
-          <img src="/images/forge.jpg" alt="Arnés ForgeCR" id="mainProductImage" />
+          <img
+            src="/images/forge-v1-800.webp"
+            srcset="/images/forge-v1-400.webp 400w, /images/forge-v1-800.webp 800w, /images/forge-v1-1200.webp 1200w"
+            sizes="(max-width: 768px) calc(100vw - 48px), min(624px, 45vw)"
+            width="1200"
+            height="1200"
+            alt="Arnés ForgeCR"
+            id="mainProductImage"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
         <div class="product__thumbs">
-          <button class="product__thumb active" data-img="/images/forge.jpg"><img src="/images/forge.jpg" alt="Vista del producto" /></button>
-          <button class="product__thumb" data-img="/images/forge2.jpg"><img src="/images/forge2.jpg" alt="En uso" /></button>
-          <button class="product__thumb" data-img="/images/forge3.jpg"><img src="/images/forge3.jpg" alt="Vista detalle" /></button>
+          <button
+            class="product__thumb active"
+            type="button"
+            data-img="/images/forge-v1-800.webp"
+            data-srcset="/images/forge-v1-400.webp 400w, /images/forge-v1-800.webp 800w, /images/forge-v1-1200.webp 1200w"
+            data-sizes="(max-width: 768px) calc(100vw - 48px), min(624px, 45vw)"
+          >
+            <img src="/images/forge-v1-thumb.webp" width="160" height="160" alt="Vista del producto" loading="lazy" decoding="async" />
+          </button>
+          <button
+            class="product__thumb"
+            type="button"
+            data-img="/images/forge2-v1-800.webp"
+            data-srcset="/images/forge2-v1-400.webp 400w, /images/forge2-v1-800.webp 800w, /images/forge2-v1-1200.webp 1200w"
+            data-sizes="(max-width: 768px) calc(100vw - 48px), min(624px, 45vw)"
+          >
+            <img src="/images/forge2-v1-thumb.webp" width="160" height="160" alt="En uso" loading="lazy" decoding="async" />
+          </button>
+          <button
+            class="product__thumb"
+            type="button"
+            data-img="/images/forge3-v1-800.webp"
+            data-srcset="/images/forge3-v1-400.webp 400w, /images/forge3-v1-800.webp 800w, /images/forge3-v1-1200.webp 1200w"
+            data-sizes="(max-width: 768px) calc(100vw - 48px), min(624px, 45vw)"
+          >
+            <img src="/images/forge3-v1-thumb.webp" width="160" height="160" alt="Vista detalle" loading="lazy" decoding="async" />
+          </button>
         </div>
       </div>
       <div class="product__info">
@@ -285,7 +367,16 @@
       </div>
       <div class="biomech__image reveal-right">
         <div class="biomech__glow"></div>
-        <img src="/images/forge3.jpg" alt="Biomecánica del Arnés ForgeCR" />
+        <img
+          src="/images/forge3-v1-800.webp"
+          srcset="/images/forge3-v1-400.webp 400w, /images/forge3-v1-800.webp 800w, /images/forge3-v1-1200.webp 1200w"
+          sizes="(max-width: 768px) calc(100vw - 48px), min(624px, 45vw)"
+          width="1200"
+          height="1200"
+          alt="Biomecánica del Arnés ForgeCR"
+          loading="lazy"
+          decoding="async"
+        />
       </div>
     </div>
   </section>
@@ -471,7 +562,16 @@
         <!-- LEFT: Product Card (sticky) -->
         <div class="order__product-card" id="orderProductCard">
           <div class="order__product-image">
-            <img src="/images/forge3.jpg" alt="Arnés ForgeCR" />
+            <img
+              src="/images/forge3-v1-800.webp"
+              srcset="/images/forge3-v1-400.webp 400w, /images/forge3-v1-800.webp 800w, /images/forge3-v1-1200.webp 1200w"
+              sizes="(max-width: 768px) calc(100vw - 80px), 352px"
+              width="1200"
+              height="1200"
+              alt="Arnés ForgeCR"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
           <div class="order__product-info">
             <span class="order__product-series">Serie de Alto Rendimiento</span>
