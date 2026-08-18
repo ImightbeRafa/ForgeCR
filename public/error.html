@@ -4,14 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Error en el Pago — Forge Costa Rica</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <style>
+    @font-face {
+      font-family: 'Space Grotesk';
+      font-style: normal;
+      font-display: swap;
+      font-weight: 300 700;
+      src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Manrope';
+      font-style: normal;
+      font-display: swap;
+      font-weight: 200 800;
+      src: url('/fonts/manrope-latin-wght-normal.woff2') format('woff2');
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Manrope', system-ui, sans-serif;
       background: #0A0A0C;
       color: #EAEAEC;
       min-height: 100vh;
@@ -36,7 +47,7 @@
     }
     .error-icon svg { color: #E54D5B; }
     .error-title {
-      font-family: 'Syne', sans-serif;
+      font-family: 'Space Grotesk', sans-serif;
       font-size: 2rem;
       font-weight: 800;
       margin-bottom: 12px;
@@ -52,7 +63,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Space Grotesk', sans-serif;
       font-size: 0.875rem;
       font-weight: 600;
       letter-spacing: 0.08em;
