@@ -12,11 +12,22 @@
   <!-- Favicon -->
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
-  <!-- LCP hero image -->
+  <!-- LCP hero image (art-directed: athlete on mobile, still life on desktop) -->
   <link
     rel="preload"
     as="image"
     type="image/webp"
+    media="(max-width: 768px)"
+    href="/images/forge4-v1-800.webp"
+    imagesrcset="/images/forge4-v1-400.webp 400w, /images/forge4-v1-800.webp 800w, /images/forge4-v1-1200.webp 1200w"
+    imagesizes="100vw"
+    fetchpriority="high"
+  />
+  <link
+    rel="preload"
+    as="image"
+    type="image/webp"
+    media="(min-width: 769px)"
     href="/images/forge-v1-1200.webp"
     imagesrcset="/images/forge-v1-400.webp 400w, /images/forge-v1-800.webp 800w, /images/forge-v1-1200.webp 1200w, /images/forge-v1-1600.webp 1600w"
     imagesizes="100vw"
@@ -127,17 +138,25 @@
   <!-- ===================== HERO ===================== -->
   <section class="hero" id="hero">
     <div class="hero__bg">
-      <img
-        src="/images/forge-v1-1200.webp"
-        srcset="/images/forge-v1-400.webp 400w, /images/forge-v1-800.webp 800w, /images/forge-v1-1200.webp 1200w, /images/forge-v1-1600.webp 1600w"
-        sizes="100vw"
-        width="1200"
-        height="1200"
-        alt="Arnés ForgeCR"
-        class="hero__bg-img"
-        loading="eager"
-        fetchpriority="high"
-      />
+      <picture class="hero__picture">
+        <source
+          media="(max-width: 768px)"
+          type="image/webp"
+          srcset="/images/forge4-v1-400.webp 400w, /images/forge4-v1-800.webp 800w, /images/forge4-v1-1200.webp 1200w"
+          sizes="100vw"
+        />
+        <img
+          src="/images/forge-v1-1200.webp"
+          srcset="/images/forge-v1-400.webp 400w, /images/forge-v1-800.webp 800w, /images/forge-v1-1200.webp 1200w, /images/forge-v1-1600.webp 1600w"
+          sizes="100vw"
+          width="1200"
+          height="1200"
+          alt="Atleta usando el arnés ForgeCR: correas en X que abren el pecho y alinean la espalda"
+          class="hero__bg-img"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </picture>
       <div class="hero__gradient"></div>
     </div>
     <div class="container hero__inner">
