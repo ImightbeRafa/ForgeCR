@@ -101,7 +101,7 @@ export function customerEmailHTML(order) {
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:18px;">
             <tr>
               <td width="28" valign="top" style="font-size:18px;color:#3EBD7A;">✓</td>
-              <td style="font-size:13px;color:#A7A7B0;line-height:1.55;"><strong style="color:#EAEAEC;">Siguiente paso:</strong> prepararemos tu pedido y coordinaremos el envío. La entrega suele tomar entre 3 y 4 días hábiles.</td>
+              <td style="font-size:13px;color:#A7A7B0;line-height:1.55;"><strong style="color:#EAEAEC;">Siguiente paso:</strong> prepararemos tu pedido y coordinaremos el envío. El tiempo de entrega varía según tu ubicación.</td>
             </tr>
           </table>`}
 
