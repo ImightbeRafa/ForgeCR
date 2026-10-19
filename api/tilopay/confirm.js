@@ -1,75 +1,72 @@
-/* Tilopay — Confirm Payment (success redirect) */
-import { sendOrderEmails } from '../utils/email.js';
-import { sendOrderToBetsyWithRetry } from '../utils/betsy.js';
-import { buildUserData, generateEventId, sendMetaEvent } from '../utils/meta.js';
-import { normalizeTrustedOrder } from '../../shared/order.js';
+/**
+ * ForgeCR – Tilopay redirect confirmation (called by /success.html).
+ *
+ * The redirect query string is controlled by the browser, so `code=1` alone proves nothing.
+ * The order is fulfilled here only when Tilopay's OrderHash verifies (HMAC with our API password,
+ * see api/_lib/tilopay.js). Otherwise the admin gets a "pending" notice and the signed webhook
+ * fulfils it. CRM 409 "already exists" de-duplicates redirect + webhook.
+ */
+import { sendPaymentProcessingAlert, sendPendingOrderEmail } from '../_lib/email.js';
+import { processPaidOrder } from '../_lib/fulfillment.js';
+import { normalizeTrustedOrder } from '../_lib/order.js';
+import { verifyOrderToken } from '../_lib/sign.js';
+import { generateEventId } from '../_lib/meta.js';
+import { guardPost, parseBody, isDryRun } from '../_lib/http.js';
+import { verifyTilopayRedirect } from '../_lib/tilopay.js';
 
 export default async function handler(req, res) {
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (!guardPost(req, res)) return;
 
   try {
-    const { returnData, code, transactionId } = req.body;
+    const { orderId, transactionId, code, auth, returnData, orderHash } = parseBody(req);
+    if (!orderId) return res.status(400).json({ success: false, error: 'Order ID required' });
 
-    if (code !== '1' && code !== 1) {
-      return res.status(400).json({ error: 'Payment not successful', code });
+    if (String(code) !== '1') {
+      return res.status(400).json({ success: false, error: 'Payment declined', code });
     }
 
-    let order;
+    let snapshot;
     try {
-      const decoded = Buffer.from(returnData, 'base64').toString('utf-8');
-      order = normalizeTrustedOrder(JSON.parse(decoded));
-    } catch (e) {
-      console.error('[Confirm] returnData decode failed:', e.message);
-      return res.status(400).json({ error: 'Invalid returnData' });
+      snapshot = verifyOrderToken(returnData);
+    } catch (err) {
+      await sendPaymentProcessingAlert({
+        reason: `Approved Tilopay redirect with invalid or unsigned returnData: ${err.message}`,
+        orderId, transactionId, source: 'redirect-confirm', payload: { code }
+      }).catch(() => {});
+      return res.status(400).json({ success: false, error: 'Invalid order data', message: 'No pudimos validar los datos de tu pedido. Escribinos por WhatsApp con tu número de orden.' });
     }
 
-    order.transactionId = transactionId;
-    order.paymentMethod = 'tilopay';
+    const order = normalizeTrustedOrder({ ...snapshot, orderId: snapshot.orderId || orderId });
+    // Use the amount actually sent to Tilopay (signed in the snapshot) in case prices changed since.
+    if (Number.isFinite(snapshot.total) && snapshot.total > 0) order.total = snapshot.total;
+    const summary = {
+      orderId: order.orderId,
+      total: order.total,
+      items: order.items.map(({ key, name, qty, lineTotal }) => ({ key, name, qty, lineTotal })),
+      metaEventId: generateEventId('purchase', order.orderId, transactionId)
+    };
 
-    // Send emails (non-blocking)
-    const emailPromise = sendOrderEmails(order).catch(err => {
-      console.error('[Email] Error:', err.message);
-    });
+    // Tilopay signs the redirect with an HMAC only it and we can compute (see api/_lib/tilopay.js).
+    const verified = verifyTilopayRedirect({ orderHash, tpt: transactionId, orderNumber: order.orderId, amount: order.total, code, auth, email: order.email });
+    if (verified || process.env.TILOPAY_REDIRECT_FULFILL === 'true') {
+      const result = await processPaidOrder({
+        order: { ...order, orderHash },
+        transactionId, req, source: verified ? 'redirect-verified' : 'redirect-unverified'
+      });
+      if (!result.success) {
+        return res.status(502).json({ success: false, error: result.error || 'Paid order processing failed', orderId });
+      }
+      return res.json({ success: true, alreadyProcessed: Boolean(result.alreadyProcessed), ...summary });
+    }
+    if (orderHash) console.warn(`[Confirm] OrderHash did not verify for ${order.orderId}; waiting for webhook`);
 
-    // Sync to BetsyCRM (non-blocking)
-    const betsyPromise = sendOrderToBetsyWithRetry(order).catch(err => {
-      console.error('[Betsy] Error:', err.message);
-    });
+    if (isDryRun()) return res.json({ success: true, pending: true, dryRun: true, ...summary });
 
-    // Send Purchase event to Meta CAPI
-    const eventId = generateEventId('purchase', order.orderId, transactionId);
-    const userData = buildUserData({
-      email: order.customer.email,
-      phone: order.customer.phone,
-      firstName: order.customer.firstName,
-      lastName: order.customer.lastName,
-      province: order.shipping.province
-    });
-
-    const metaPromise = sendMetaEvent({
-      eventName: 'Purchase',
-      eventId,
-      userData,
-      customData: {
-        content_name: order.product.name,
-        content_ids: ['arnes-forgecr'],
-        content_type: 'product',
-        num_items: order.product.quantity,
-        value: order.total,
-        currency: 'CRC',
-        order_id: order.orderId,
-        transaction_id: transactionId
-      },
-      sourceUrl: `${process.env.SITE_URL}/success.html`
-    }).catch(err => console.error('[Meta CAPI] Purchase error:', err.message));
-
-    // Wait for all (non-blocking — order already confirmed)
-    await Promise.allSettled([emailPromise, betsyPromise, metaPromise]);
-
-    return res.status(200).json({ success: true, orderId: order.orderId });
-  } catch (err) {
-    console.error('[Confirm] Error:', err);
-    return res.status(500).json({ error: 'Confirmation processing failed' });
+    // Default: wait for the signed webhook. Leave a trail for the admin in the meantime.
+    await sendPendingOrderEmail(order, { transactionId }).catch((e) => console.warn('[Confirm] pending email failed:', e.message));
+    return res.json({ success: true, pending: true, ...summary });
+  } catch (error) {
+    console.error('[Confirm] Error:', error.message);
+    return res.status(500).json({ success: false, error: 'Confirmation failed' });
   }
 }

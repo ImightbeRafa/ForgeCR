@@ -1,84 +1,159 @@
-/* Tilopay — Webhook (async backup) */
-import { createHmac } from 'crypto';
-import { sendOrderEmails } from '../utils/email.js';
-import { sendOrderToBetsyWithRetry } from '../utils/betsy.js';
-import { buildUserData, generateEventId, sendMetaEvent } from '../utils/meta.js';
-import { normalizeTrustedOrder } from '../../shared/order.js';
+import { sendPaymentProcessingAlert } from '../_lib/email.js';
+import { processPaidOrder } from '../_lib/fulfillment.js';
+import { findOrderTotalMismatch } from '../_lib/order.js';
+import { verifyOrderToken } from '../_lib/sign.js';
+import crypto from 'crypto';
 
-function verifyHMAC(body, signature) {
-  const secret = process.env.TILOPAY_WEBHOOK_SECRET;
-  if (!secret) return false;
+const processedWebhooks = new Set();
 
-  const raw = typeof body === 'string' ? body : JSON.stringify(body);
-  const expected = createHmac('sha256', secret).update(raw).digest('hex');
-  return expected === signature;
+function verifyWebhookSignature(req) {
+  const expectedSecret = process.env.TILOPAY_WEBHOOK_SECRET || '';
+  if (!expectedSecret) {
+    if (process.env.TILOPAY_ALLOW_UNSIGNED_WEBHOOKS === 'true') {
+      console.warn('[Webhook] TILOPAY_WEBHOOK_SECRET missing; unsigned webhooks allowed by env override');
+      return true;
+    }
+    console.error('[Webhook] TILOPAY_WEBHOOK_SECRET not configured; refusing to process payment webhook');
+    return false;
+  }
+
+  const providedSecret = req.headers['x-tilopay-secret'] || '';
+  if (providedSecret && providedSecret === expectedSecret) return true;
+
+  const providedHash = req.headers['hash-tilopay'] || '';
+  if (providedHash) {
+    try {
+      const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+      const computedHash = crypto.createHmac('sha256', expectedSecret).update(rawBody).digest('hex');
+      if (crypto.timingSafeEqual(Buffer.from(providedHash), Buffer.from(computedHash))) return true;
+    } catch (e) {
+      console.error('[Webhook] HMAC verification error:', e.message);
+    }
+    return false;
+  }
+
+  return false;
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  if (req.method === 'GET') {
+    return res.json({ status: 'ok', message: 'Tilopay webhook endpoint is active (ForgeCR)', timestamp: new Date().toISOString() });
+  }
+
+  if (req.method !== 'POST') { return res.status(405).json({ error: 'Method not allowed' }); }
+
+  const webhookId = `wh_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  console.log(`[Webhook] Received payment notification [${webhookId}]`);
 
   try {
-    const signature = req.headers['hash-tilopay'] || req.headers['x-tilopay-secret'];
+    const payload = req.body;
 
-    if (!verifyHMAC(req.body, signature)) {
-      console.error('[Webhook] HMAC verification failed');
-      return res.status(401).json({ error: 'Unauthorized' });
+    const isVerified = verifyWebhookSignature(req);
+    if (!isVerified) {
+      console.error(`[Webhook] Signature verification FAILED [${webhookId}]`);
+      return res.status(401).json({ error: 'Invalid webhook signature' });
     }
 
-    const { code, returnData, transactionId } = req.body;
+    const orderId = payload.order || payload.order_id || payload.orderNumber || payload.referencia || payload.reference;
+    const transactionId = payload['tilopay-transaction'] || payload.tpt || payload.transaction_id || payload.transaccion_id || payload.id;
+    const code = payload.code;
+    const status = String(payload.estado || payload.status || '').toLowerCase();
 
-    if (code !== '1' && code !== 1) {
-      return res.status(200).json({ received: true, processed: false });
+    console.log(`[Webhook] Payment details - Order: ${orderId}, Transaction: ${transactionId}, Code: ${code}, Status: ${status} [${webhookId}]`);
+
+    if (!orderId) {
+      return res.status(400).json({ error: 'No order ID' });
+    }
+
+    const dedupeKey = `${orderId}_${transactionId || ''}`;
+    if (processedWebhooks.has(dedupeKey)) {
+      return res.json({ success: true, message: 'Webhook already processed', alreadyProcessed: true });
+    }
+
+    const isCodeApproved = code === '1' || code === 1 || String(code) === '1';
+    const isStatusApproved = ['aprobada', 'approved', 'success', 'paid', 'completed'].includes(status);
+    const isSuccess = isCodeApproved || (isStatusApproved && code === undefined);
+
+    if (!isSuccess) {
+      const isDeclined = (code !== undefined && !isCodeApproved) ||
+        ['rechazada', 'declined', 'failed', 'canceled', 'cancelled', 'rejected'].includes(status);
+
+      if (isDeclined) {
+        processedWebhooks.add(dedupeKey);
+        return res.json({ success: true, orderId, message: 'Payment failed - order cancelled', paymentStatus: 'failed', webhookId });
+      }
+
+      return res.json({ success: true, orderId, message: 'Webhook received but status unknown', webhookId });
+    }
+
+    const returnData = payload.returnData || payload.return_data;
+    if (!returnData) {
+      await sendPaymentProcessingAlert({
+        reason: 'Approved Tilopay webhook missing returnData',
+        orderId,
+        transactionId,
+        source: 'webhook',
+        payload
+      }).catch(() => {});
+
+      processedWebhooks.add(dedupeKey);
+      return res.json({
+        success: true,
+        needsManualReview: true,
+        orderId,
+        message: 'Approved webhook received without order data. Admin alert sent.',
+        webhookId
+      });
     }
 
     let order;
     try {
-      const decoded = Buffer.from(returnData, 'base64').toString('utf-8');
-      order = normalizeTrustedOrder(JSON.parse(decoded));
+      order = verifyOrderToken(returnData);
+      const { mismatches } = findOrderTotalMismatch(order);
+      if (mismatches.length > 0) {
+        console.warn(`[Webhook] Correcting untrusted order totals for ${orderId}: ${mismatches.join('; ')}`);
+      }
     } catch (e) {
-      console.error('[Webhook] Invalid returnData');
-      return res.status(400).json({ error: 'Invalid returnData' });
+      await sendPaymentProcessingAlert({
+        reason: 'Approved Tilopay webhook had invalid or unsigned returnData',
+        orderId,
+        transactionId,
+        source: 'webhook',
+        payload: { error: e.message, body: payload }
+      }).catch(() => {});
+
+      processedWebhooks.add(dedupeKey);
+      return res.json({
+        success: true,
+        needsManualReview: true,
+        orderId,
+        message: 'Approved webhook had invalid order data. Admin alert sent.',
+        webhookId
+      });
     }
 
-    order.transactionId = transactionId;
-    order.paymentMethod = 'tilopay';
-
-    // Send emails
-    sendOrderEmails(order).catch(err => console.error('[Webhook Email]', err.message));
-
-    // Sync to BetsyCRM
-    sendOrderToBetsyWithRetry(order).catch(err => console.error('[Webhook Betsy]', err.message));
-
-    // Meta CAPI Purchase
-    const eventId = generateEventId('purchase', order.orderId, transactionId);
-    const userData = buildUserData({
-      email: order.customer.email,
-      phone: order.customer.phone,
-      firstName: order.customer.firstName,
-      lastName: order.customer.lastName,
-      province: order.shipping.province
+    const result = await processPaidOrder({
+      order: { ...order, orderId: order.orderId || orderId },
+      transactionId,
+      req,
+      source: 'webhook'
     });
 
-    sendMetaEvent({
-      eventName: 'Purchase',
-      eventId,
-      userData,
-      customData: {
-        content_name: order.product.name,
-        content_ids: ['arnes-forgecr'],
-        content_type: 'product',
-        num_items: order.product.quantity,
-        value: order.total,
-        currency: 'CRC',
-        order_id: order.orderId,
-        transaction_id: transactionId
-      },
-      sourceUrl: `${process.env.SITE_URL}/success.html`
-    }).catch(err => console.error('[Webhook Meta]', err.message));
+    if (result.success) {
+      processedWebhooks.add(dedupeKey);
+    }
 
-    return res.status(200).json({ received: true, processed: true });
-  } catch (err) {
-    console.error('[Webhook] Error:', err);
-    return res.status(500).json({ error: 'Webhook processing failed' });
+    return res.status(result.success ? 200 : 500).json({
+      success: result.success,
+      alreadyProcessed: result.alreadyProcessed || false,
+      orderId,
+      message: result.success ? 'Payment confirmed and order processed via webhook' : 'Payment confirmed but order processing needs review',
+      results: result.results,
+      webhookId
+    });
+  } catch (error) {
+    console.error(`[Webhook] Error [${webhookId}]:`, error);
+    return res.status(500).json({ error: 'Webhook processing failed', message: error.message, webhookId });
   }
 }

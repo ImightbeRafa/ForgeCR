@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /checkout/
+Disallow: /pedido/
+Disallow: /success.html
+Disallow: /error.html
+
+Sitemap: https://forge.shopping/sitemap.xml
