@@ -38,6 +38,7 @@ function devApiPlugin() {
     configureServer(server) {
       // Safety: local dev never emails customers, writes to the CRM or fires Meta events unless explicitly disabled.
       if (process.env.ORDER_DRY_RUN === undefined) process.env.ORDER_DRY_RUN = 'true';
+      if (!process.env.ORDER_SIGNING_SECRET) process.env.ORDER_SIGNING_SECRET = 'forge-dev-signing-secret';
       const env = loadEnv('development', root, '');
       for (const [k, v] of Object.entries(env)) if (process.env[k] === undefined) process.env[k] = v;
 

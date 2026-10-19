@@ -35,7 +35,7 @@ export function generatePages(mode = 'production') {
 
   const pages = {
     'index.html': homePage(cat),
-    [`producto/${PRODUCT.slug}/index.html`]: productPage(cat),
+    [`producto/${PRODUCT.slug}/index.html`]: productPage(cat), // still receives cat for variants
     'checkout/index.html': checkoutPage(),
     'pedido/index.html': confirmPage(),
     'success.html': successPage(),

@@ -1,187 +1,57 @@
-import {
-  SITE,
-  PRODUCT,
-  PRICE,
-  FAQ,
-  SIZES,
-  formatCRC,
-  REVIEWS_ARE_PLACEHOLDERS,
-  reviewSummary
-} from '../../../shared/catalog.js';
-import { layout, esc, faqList, faqJsonLd, icons } from '../layout.js';
-import { benefitCards, stepCards, sizeGuideTable, reviewsBlock, lifestyleStrip } from '../components.js';
+import { SITE, PRODUCT, PRICE, formatCRC } from '../../../shared/catalog.js';
+import { layout } from '../layout.js';
 
-export function productPage(cat) {
-  const p = PRODUCT;
-  const variants = cat.variants();
-  const summary = reviewSummary('arnes');
-
-  const gallery = [
-    ['/images/arnes-gallery.webp', 'Arnés ForgeCR vista principal'],
-    ['/images/forge2-v1-1200.webp', 'Arnés ForgeCR ángulo 2'],
-    ['/images/forge3-v1-1200.webp', 'Arnés ForgeCR detalle'],
-    ['/images/forge4-v1-1200.webp', 'Arnés ForgeCR en uso'],
-    ['/images/arnes-lifestyle-1.webp', 'Uso diario'],
-    ['/images/arnes-howto-1.webp', 'Cómo ajustar'],
-    ['/images/arnes-detail-1.webp', 'Detalle de material'],
-    ['/images/arnes-lifestyle-2.webp', 'Look atlético']
-  ];
-
-  const thumbs = gallery
-    .map(
-      ([src, alt], i) =>
-        `<button type="button" class="gal-thumb${i === 0 ? ' is-active' : ''}" data-gal-thumb="${i}" aria-label="Ver imagen ${i + 1}"><img src="${src}" alt="${esc(alt)}" width="96" height="96" loading="lazy"></button>`
-    )
-    .join('');
-
-  const slides = gallery
-    .map(
-      ([src, alt], i) =>
-        `<figure class="gal-slide${i === 0 ? ' is-active' : ''}" data-gal-slide="${i}"><img src="${src}" alt="${esc(alt)}" width="900" height="900" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}></figure>`
-    )
-    .join('');
-
-  const sizeChips = variants
-    .map((v) => {
-      const sold = cat.isSoldOut(v.key);
-      return `<button type="button" class="size-chip${sold ? ' is-soldout' : ''}" data-size-key="${v.key}" data-size="${esc(v.size)}" ${sold ? 'disabled aria-disabled="true"' : ''} aria-pressed="false">
-      <span>${esc(v.size)}</span>
-      <small>${sold ? 'Agotado' : `${v.stock} disp.`}</small>
-    </button>`;
-    })
-    .join('');
-
-  const stars =
-    summary && !REVIEWS_ARE_PLACEHOLDERS
-      ? `<a class="stars-link" href="#resenas">${'★'.repeat(5)} <span>${summary.average} · ${summary.count} reseñas</span></a>`
-      : summary
-        ? `<p class="stars-link">${'★'.repeat(5)} <span>${summary.average} · ${summary.count} opiniones</span></p>`
-        : '';
-
-  const buyBox = `
-<div class="buybox" data-pdp>
-  <h1>${esc(p.name)}</h1>
-  ${stars}
-  <p class="result">${esc(p.result)}</p>
-  <div class="price"><b data-price>${formatCRC(PRICE)}</b><small>Envío gratis</small></div>
-  <ul class="bullets">${p.bullets.map(([f, b]) => `<li><b>${esc(f)}</b> → ${esc(b)}</li>`).join('')}</ul>
-  <div class="field">
-    <div class="field-label"><span>Seleccioná tu talla</span><a href="#guia-tallas">Guía de tallas</a></div>
-    <div class="size-chips" role="group" aria-label="Tallas">${sizeChips}</div>
-    <p class="size-hint" data-size-hint>Elegí una talla para continuar</p>
-  </div>
-  <div class="qty-row">
-    <label for="qty">Cantidad</label>
-    <div class="qty">
-      <button type="button" data-qty-minus aria-label="Menos">−</button>
-      <input id="qty" type="number" min="1" max="10" value="1" data-qty>
-      <button type="button" data-qty-plus aria-label="Más">+</button>
-    </div>
-  </div>
-  <div class="buy-actions">
-    <button class="btn btn-cta btn-lg" type="button" data-add-cart disabled>Elegí una talla</button>
-    <button class="btn btn-ghost btn-lg" type="button" data-buy-now disabled>Comprar ahora</button>
-  </div>
-  <ul class="micro">
-    <li>${icons.truck}<span>Envío gratis · ${SITE.deliveryDays}</span></li>
-    <li>${icons.lock}<span>SINPE Móvil o tarjeta</span></li>
-    <li>${icons.chat}<span>WhatsApp ${SITE.whatsappDisplay}</span></li>
-  </ul>
-  <div class="acc">
-    <details open><summary>Materiales y cuidado</summary><div class="answer"><p>${esc(p.materials)}</p><p>${esc(p.care)}</p></div></details>
-    <details><summary>Envíos</summary><div class="answer"><p>Envío gratis a todo Costa Rica por ${SITE.courier}. Tiempo estimado: ${SITE.deliveryDays}.</p></div></details>
-  </div>
-</div>`;
-
-  const sticky = `
-<div class="sticky-buy" data-sticky-buy hidden>
-  <div class="container sticky-inner">
-    <div><b>${esc(p.name)}</b><span data-sticky-size>Elegí talla</span></div>
-    <button class="btn btn-cta" type="button" data-add-cart disabled>${formatCRC(PRICE)}</button>
-  </div>
-</div>`;
-
+/** Dedicated PDP: send people into the real Forge buy flow on the home page. */
+export function productPage() {
   const main = `
-<nav class="crumbs container"><a href="/">Inicio</a> / <span>${esc(p.name)}</span></nav>
-<section class="pdp">
-  <div class="container pdp-grid">
-    <div class="gallery" data-gallery>
-      <div class="gal-main">${slides}</div>
-      <div class="gal-thumbs">${thumbs}</div>
+<section class="product" id="producto">
+  <div class="container product__inner">
+    <div class="product__hero-text">
+      <h1 class="product__headline reveal-up">EQUIPO DE<br/>PRECISIÓN.</h1>
+      <p class="product__intro reveal-up">${PRODUCT.result}</p>
     </div>
-    ${buyBox}
+  </div>
+  <div class="container product__layout">
+    <div class="product__gallery">
+      <div class="product__main-image">
+        <img src="/images/forge-v1-800.webp" srcset="/images/forge-v1-400.webp 400w, /images/forge-v1-800.webp 800w, /images/forge-v1-1200.webp 1200w" sizes="(max-width: 768px) calc(100vw - 48px), min(624px, 45vw)" width="1200" height="1200" alt="Arnés ForgeCR" loading="eager" fetchpriority="high">
+      </div>
+    </div>
+    <div class="product__info">
+      <span class="product__series">Serie de Alto Rendimiento</span>
+      <h2 class="product__name">${PRODUCT.name}</h2>
+      <div class="product__price">
+        <span class="product__price-currency">CRC</span>
+        <span class="product__price-value">14,900</span>
+      </div>
+      <p class="product__intro">${PRODUCT.tagline}. Envío gratis a todo el país.</p>
+      <a class="btn btn--primary product__add-btn" href="/#pedido">Elegir talla y comprar</a>
+      <a class="product__direct-order" href="/#tallas">Ver guía de tallas</a>
+      <ul class="product__badges">
+        <li>Envío gratis</li>
+        <li>SINPE o tarjeta</li>
+        <li>WhatsApp ${SITE.whatsappDisplay}</li>
+      </ul>
+    </div>
   </div>
 </section>
-
-<section class="section alt" id="beneficios">
-  <div class="container">
-    <div class="section-head center"><span class="eyebrow">Beneficios</span><h2>Pensado para tu rutina</h2></div>
-    ${benefitCards()}
-  </div>
-</section>
-
-<section class="section" id="como-usar">
-  <div class="container">
-    <div class="section-head center"><span class="eyebrow">Cómo usar</span><h2>Ponete, ajustá, seguí</h2></div>
-    ${stepCards()}
-    ${lifestyleStrip()}
-  </div>
-</section>
-
-<section class="section alt" id="guia-tallas">
-  <div class="container">
-    <div class="section-head"><span class="eyebrow">Tallas</span><h2>Guía de tallas</h2></div>
-    ${sizeGuideTable(SIZES.map((s) => ({ size: s.id, height: s.height, weight: s.weight })))}
-  </div>
-</section>
-
-${reviewsBlock()}
-
-<section class="section" id="faq">
-  <div class="container narrow">
-    <div class="section-head center"><h2>Preguntas del producto</h2></div>
-    ${faqList(FAQ)}
-  </div>
-</section>
-
-<section class="final-cta">
-  <div class="container">
-    <h2>Elegí tu talla y forjá mejor postura</h2>
-    <a class="btn btn-cta btn-lg" href="#main">Volver al comprador</a>
+<section class="conversion-band">
+  <div class="container conversion-band__inner">
+    <div class="conversion-band__copy">
+      <p class="conversion-band__eyebrow">Listo para forjar</p>
+      <h2 class="conversion-band__title">${formatCRC(PRICE)} · envío gratis</h2>
+      <p class="conversion-band__text">Seleccioná tu talla, completá tus datos y pagá seguro con tarjeta o SINPE.</p>
+      <a class="btn btn--primary conversion-band__cta" href="/#pedido">Ordenar ahora</a>
+    </div>
   </div>
 </section>`;
 
-  const offers = variants.map((v) => ({
-    '@type': 'Offer',
-    name: v.name,
-    price: PRICE,
-    priceCurrency: 'CRC',
-    availability: cat.isSoldOut(v.key) ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
-    url: `${SITE.url}${p.path}`
-  }));
-
   return layout({
-    title: `${p.name} — ${formatCRC(PRICE)} | ForgeCR`,
-    description: p.tagline,
-    path: p.path,
-    page: 'pdp',
-    css: ['/src/styles/pdp.css'],
-    image: '/images/arnes-og.jpg',
-    ogType: 'product',
-    main,
-    tail: sticky,
-    head: `<link rel="preload" as="image" href="/images/arnes-gallery.webp" fetchpriority="high">`,
-    jsonld: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'Product',
-        name: p.name,
-        description: p.tagline,
-        image: [`${SITE.url}/images/arnes-gallery.webp`],
-        brand: { '@type': 'Brand', name: SITE.name },
-        offers: offers
-      },
-      faqJsonLd(FAQ)
-    ]
+    title: `${PRODUCT.name} — ${formatCRC(PRICE)} | ForgeCR`,
+    description: PRODUCT.tagline,
+    path: PRODUCT.path,
+    page: 'static',
+    image: '/images/forge-v1-1200.webp',
+    main
   });
 }

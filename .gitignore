@@ -19,3 +19,7 @@ envios-y-devoluciones/
 terminos/
 privacidad/
 design-preview/
+
+tmp-master-*
+*.tmp.html
+

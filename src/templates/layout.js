@@ -1,7 +1,12 @@
 /**
- * Shared page shell for ForgeCR.
+ * ForgeCR page shell — uses original Precision Brutalism classes.
  */
-import { SITE, FAQ, formatCRC } from '../../shared/catalog.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { SITE, FAQ, formatCRC, PRICE } from '../../shared/catalog.js';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 export const esc = (s) => String(s ?? '')
   .replace(/&/g, '&amp;')
@@ -9,31 +14,9 @@ export const esc = (s) => String(s ?? '')
   .replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;');
 
-export function wordmark() {
-  return `<span class="wordmark" aria-hidden="true">FORGE<span class="wordmark-accent">CR</span></span>`;
+export function readFragment(name) {
+  return fs.readFileSync(path.join(root, 'src/templates/fragments', name), 'utf8');
 }
-
-export const icons = {
-  cart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 12H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>',
-  menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
-  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
-  truck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h11v10H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>',
-  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
-  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>',
-  shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/></svg>',
-  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>',
-  star: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>',
-  whatsapp: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35M12.05 21.78a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.44 9.88-9.89 9.88m8.41-18.3A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45c6.56 0 11.89-5.34 11.89-11.9 0-3.18-1.24-6.17-3.48-8.41z"/></svg>',
-  instagram: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85C2.38 3.92 3.9 2.38 7.15 2.23 8.42 2.17 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07 2.7.27.27 2.69.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.2 4.36 2.62 6.78 6.98 6.98C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c4.35-.2 6.78-2.62 6.98-6.98.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.2-4.35-2.62-6.78-6.98-6.98C15.67.01 15.26 0 12 0zm0 5.84a6.16 6.16 0 1 0 0 12.32 6.16 6.16 0 0 0 0-12.32zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.85a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z"/></svg>'
-};
-
-const NAV = [
-  ['/producto/arnes-forgecr/', 'Producto'],
-  ['/#como-usar', 'Cómo usar'],
-  ['/#tallas', 'Tallas'],
-  ['/#faq', 'Preguntas'],
-  ['/checkout/', 'Comprar']
-];
 
 const pixelScript = `<script>
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[]}(window,document);
@@ -42,84 +25,91 @@ fbq('init','${SITE.pixelId}');fbq('track','PageView');
 if('requestIdleCallback' in window)requestIdleCallback(l,{timeout:3000});else addEventListener('load',l)})();
 </script>`;
 
-export function header() {
-  const links = NAV.map(([href, label]) => `<a href="${href}">${label}</a>`).join('');
+export function header(active = '') {
+  const link = (href, label, key) =>
+    `<a href="${href}" class="header__link${active === key ? ' header__link--active' : ''}">${label}</a>`;
   return `
-<div class="ann" role="note"><strong>Envío gratis</strong> a todo Costa Rica · SINPE Móvil o tarjeta</div>
-<header class="site-header">
-  <div class="container bar">
-    <button class="icon-btn menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="primary-nav" data-menu-toggle>${icons.menu}</button>
-    <a class="logo" href="/" aria-label="ForgeCR, inicio">${wordmark()}</a>
-    <nav id="primary-nav" class="primary-nav" aria-label="Principal">${links}</nav>
-    <button class="icon-btn cart-btn" type="button" aria-label="Abrir carrito" data-open-cart>${icons.cart}<span class="cart-count" data-cart-count hidden>0</span></button>
+<header class="header" id="header">
+  <div class="container header__inner">
+    <a href="/" class="header__logo">ForgeCR</a>
+    <nav class="header__nav" id="headerNav">
+      ${link('/#producto', 'Tienda', 'tienda')}
+      ${link('/#historia', 'Nuestra Historia', 'historia')}
+      ${link('/#tallas', 'Guía de Tallas', 'tallas')}
+    </nav>
+    <div class="header__actions">
+      <a href="/#pedido" class="header__order-cta">Ordenar Ahora</a>
+      <a href="/#pedido" class="header__cart" aria-label="Ir al pedido">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-shopping-cart"></use></svg>
+      </a>
+      <button class="header__hamburger" id="hamburger" aria-label="Menú" type="button">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </div>
-</header>`;
+</header>
+<div class="mobile-overlay" id="mobileOverlay"></div>
+<div class="mobile-drawer" id="mobileDrawer">
+  <button class="mobile-drawer__close" id="drawerClose" aria-label="Cerrar" type="button">&times;</button>
+  <nav class="mobile-drawer__nav">
+    <a href="/#producto" class="mobile-drawer__link">Tienda</a>
+    <a href="/#historia" class="mobile-drawer__link">Nuestra Historia</a>
+    <a href="/#tallas" class="mobile-drawer__link">Guía de Tallas</a>
+    <a href="/#pedido" class="mobile-drawer__link mobile-drawer__cta">Comprar Ahora</a>
+  </nav>
+</div>`;
 }
 
 export function footer() {
   return `
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <a href="/" aria-label="ForgeCR, inicio">${wordmark()}</a>
-        <p>Arnés postural de alto rendimiento para atletas y profesionales en Costa Rica. Forjá mejor postura, cada día.</p>
-      </div>
-      <div>
-        <h4>Tienda</h4>
-        <ul>
-          <li><a href="/producto/arnes-forgecr/">Arnés ForgeCR</a></li>
-          <li><a href="/#como-usar">Cómo usar</a></li>
-          <li><a href="/#tallas">Guía de tallas</a></li>
-          <li><a href="/#faq">Preguntas frecuentes</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Ayuda</h4>
-        <ul>
-          <li><a href="/envios-y-devoluciones/">Envíos y devoluciones</a></li>
-          <li><a href="/terminos/">Términos y condiciones</a></li>
-          <li><a href="/privacidad/">Privacidad</a></li>
-          <li><a href="https://wa.me/${SITE.whatsapp}" rel="noopener" target="_blank">WhatsApp ${SITE.whatsappDisplay}</a></li>
-          <li><a href="${SITE.instagram}" rel="noopener" target="_blank">Instagram ${SITE.instagramHandle}</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Pagos</h4>
-        <div class="pay-badges"><span>SINPE Móvil</span><span>Tarjeta crédito</span><span>Tarjeta débito</span></div>
-        <p class="footer-price">Desde ${formatCRC(14900)} · Envío gratis</p>
+<footer class="footer">
+  <div class="container footer__inner">
+    <div class="footer__brand">
+      <span class="footer__logo">ForgeCR</span>
+      <p class="footer__tagline">Equipo de postura de alto rendimiento diseñado para los más exigentes.</p>
+      <div class="footer__social">
+        <a href="${SITE.instagram}" target="_blank" rel="noopener">Instagram ${SITE.instagramHandle}</a>
+        <a href="https://wa.me/${SITE.whatsapp}" target="_blank" rel="noopener">WhatsApp ${SITE.whatsappDisplay}</a>
       </div>
     </div>
-    <p class="disclaimer">ForgeCR es un producto de soporte atlético / bienestar postural. No es un dispositivo médico ni sustituye valoración profesional. Si tenés una lesión o condición, consultá con un profesional de la salud.</p>
-    <div class="footer-bottom"><span>&copy; ${new Date().getFullYear()} ${SITE.legalName}</span><span>Costa Rica</span></div>
+    <div class="footer__columns">
+      <div class="footer__col">
+        <span class="footer__col-title">Tienda</span>
+        <a href="/#producto">Arnés ForgeCR</a>
+        <a href="/#tallas">Guía de tallas</a>
+        <a href="/#pedido">Ordenar</a>
+      </div>
+      <div class="footer__col">
+        <span class="footer__col-title">Ayuda</span>
+        <a href="/envios-y-devoluciones/">Envíos y devoluciones</a>
+        <a href="/terminos/">Términos</a>
+        <a href="/privacidad/">Privacidad</a>
+      </div>
+      <div class="footer__col">
+        <span class="footer__col-title">Pagos</span>
+        <a href="/#pedido">SINPE Móvil</a>
+        <a href="/#pedido">Tarjeta (Tilopay)</a>
+        <span>Desde ${formatCRC(PRICE)} · Envío gratis</span>
+      </div>
+    </div>
   </div>
-</footer>`;
-}
-
-export function cartShell() {
-  return `
-<div class="overlay" data-overlay></div>
-<aside class="drawer" id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" aria-hidden="true">
-  <div class="drawer-head">
-    <h2 id="cart-title">Tu carrito</h2>
-    <button class="icon-btn" type="button" aria-label="Cerrar carrito" data-close-cart>${icons.close}</button>
+  <div class="container footer__bottom">
+    <span class="footer__copy">&copy; ${new Date().getFullYear()} ${SITE.legalName}. Todos los derechos reservados.</span>
   </div>
-  <div class="drawer-body" data-cart-body></div>
-  <div class="drawer-foot" data-cart-foot hidden></div>
-</aside>
-<a class="wa-float" href="https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent('Hola ForgeCR, tengo una consulta')}" target="_blank" rel="noopener" aria-label="Escribinos por WhatsApp">${icons.whatsapp}</a>
-<div class="toast-region" role="status" aria-live="polite" data-toasts></div>`;
+</footer>
+<a class="wa-float" href="https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent('Hola ForgeCR, tengo una consulta')}" target="_blank" rel="noopener" aria-label="WhatsApp">WA</a>`;
 }
 
 export function layout(o) {
   const url = `${SITE.url}${o.path}`;
-  const image = `${SITE.url}${o.image || '/images/arnes-og.jpg'}`;
+  const image = `${SITE.url}${o.image || '/images/forge-v1-1200.webp'}`;
   const css = ['/src/styles/site.css', ...(o.css || [])]
     .map((href) => `<link rel="stylesheet" href="${href}">`)
     .join('\n  ');
   const ld = (o.jsonld || [])
     .map((j) => `<script type="application/ld+json">${JSON.stringify(j).replace(/</g, '\\u003c')}</script>`)
     .join('\n  ');
+
   return `<!DOCTYPE html>
 <!-- GENERATED by scripts/build-pages.js — edit src/templates/*, not this file. -->
 <html lang="es-CR">
@@ -133,39 +123,33 @@ export function layout(o) {
   <meta name="theme-color" content="#0E0E0E">
   <meta property="og:type" content="${o.ogType || 'website'}">
   <meta property="og:site_name" content="${SITE.name}">
-  <meta property="og:locale" content="es_CR">
   <meta property="og:title" content="${esc(o.title)}">
   <meta property="og:description" content="${esc(o.description)}">
   <meta property="og:url" content="${url}">
   <meta property="og:image" content="${image}">
-  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="/fonts/space-grotesk-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="dns-prefetch" href="https://connect.facebook.net">
   ${o.head || ''}
   ${css}
   ${ld}
 </head>
 <body class="${o.bodyClass || ''}">
   <noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${SITE.pixelId}&ev=PageView&noscript=1"></noscript>
-  <a class="skip-link" href="#main">Saltar al contenido</a>
-  ${header()}
+  ${readFragment('icons.svg.html')}
+  ${header(o.nav || '')}
   <main id="main">${o.main}</main>
-  ${o.tail || ''}
   ${footer()}
-  ${cartShell()}
   ${pixelScript}
   <script type="module" src="/src/js/${o.page}.js"></script>
 </body>
-</html>
-`;
+</html>`;
 }
 
 export function faqList(items = FAQ, openFirst = true) {
-  return `<div class="faq">${items
+  return `<div class="faq__list">${items
     .map(
       ([q, a], i) =>
-        `<details${openFirst && i === 0 ? ' open' : ''}><summary>${esc(q)}</summary><div class="answer"><p>${esc(a)}</p></div></details>`
+        `<details class="faq-item"${openFirst && i === 0 ? ' open' : ''}><summary class="faq-item__q">${esc(q)}</summary><div class="faq-item__a">${esc(a)}</div></details>`
     )
     .join('')}</div>`;
 }
@@ -180,4 +164,13 @@ export function faqJsonLd(items = FAQ) {
       acceptedAnswer: { '@type': 'Answer', text: a }
     }))
   };
+}
+
+// Compatibility exports used by older template helpers
+export const icons = {};
+export function wordmark() {
+  return 'ForgeCR';
+}
+export function cartShell() {
+  return '';
 }

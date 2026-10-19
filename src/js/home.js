@@ -1,1 +1,579 @@
-import './core.js';
+import { PRICE, SIZES } from '../../shared/catalog.js';
+
+
+/* ============================================
+   FORGE COSTA RICA — Frontend Logic
+   ============================================ */
+
+const SIZE_KEY = {
+  'M/L': 'arnes-ml', XL: 'arnes-xl', '2XL': 'arnes-2xl', '3XL': 'arnes-3xl', '4XL': 'arnes-4xl'
+};
+const PRODUCT = {
+  id: 'arnes-forgecr',
+  name: 'Arnés ForgeCR',
+  price: PRICE,
+  currency: 'CRC',
+  sizes: Object.fromEntries(SIZES.map((s) => [s.id, s.stock]))
+};
+function calculateOrderTotals(quantity) {
+  const subtotal = PRODUCT.price * quantity;
+  return { subtotal, shippingCost: 0, total: subtotal };
+}
+
+const API_BASE = window.location.hostname === 'localhost' ? '' : '';
+
+/* ---- State ---- */
+let state = {
+  selectedSize: null,
+  quantity: 1
+};
+
+/* ---- Helpers ---- */
+function formatCRC(amount) {
+  return `₡${amount.toLocaleString('es-CR')}`;
+}
+
+function generateOrderId() {
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return `ORD-${Date.now()}-${rand}`;
+}
+
+/* ---- Meta Pixel Helper ---- */
+const viewedProducts = new Set();
+
+function metaTrack(eventName, params = {}, options = {}) {
+  if (typeof fbq !== 'function') return;
+  const method = options.eventID ? 'track' : 'track';
+  const fbqParams = { ...params };
+  if (options.eventID) {
+    fbq(method, eventName, fbqParams, { eventID: options.eventID });
+  } else {
+    fbq(method, eventName, fbqParams);
+  }
+}
+
+/* ============================================
+   HEADER — scroll behavior
+   ============================================ */
+const header = document.getElementById('header');
+
+function handleHeaderScroll() {
+  if (window.scrollY > 40) {
+    header.classList.add('header--scrolled');
+  } else {
+    header.classList.remove('header--scrolled');
+  }
+}
+
+window.addEventListener('scroll', handleHeaderScroll, { passive: true });
+handleHeaderScroll();
+
+/* ---- Mobile drawer ---- */
+const hamburger = document.getElementById('hamburger');
+const mobileOverlay = document.getElementById('mobileOverlay');
+const mobileDrawer = document.getElementById('mobileDrawer');
+const drawerClose = document.getElementById('drawerClose');
+
+function openDrawer() {
+  mobileOverlay.classList.add('active');
+  mobileDrawer.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDrawer() {
+  mobileOverlay.classList.remove('active');
+  mobileDrawer.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+hamburger.addEventListener('click', openDrawer);
+mobileOverlay.addEventListener('click', closeDrawer);
+drawerClose.addEventListener('click', closeDrawer);
+
+document.querySelectorAll('.mobile-drawer__link').forEach(link => {
+  link.addEventListener('click', closeDrawer);
+});
+
+/* ============================================
+   SCROLL REVEAL
+   ============================================ */
+function initScrollReveal() {
+  const revealElements = document.querySelectorAll('.reveal-up, .reveal-right');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const delay = parseInt(entry.target.dataset.delay || 0);
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, delay);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  revealElements.forEach(el => observer.observe(el));
+}
+
+initScrollReveal();
+
+/* ============================================
+   PRODUCT — ViewContent tracking
+   ============================================ */
+const productSection = document.getElementById('producto');
+if (productSection) {
+  const vcObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !viewedProducts.has('arnes-forgecr')) {
+        viewedProducts.add('arnes-forgecr');
+        metaTrack('ViewContent', {
+          content_name: PRODUCT.name,
+          content_type: 'product',
+          content_ids: ['arnes-forgecr'],
+          value: PRODUCT.price,
+          currency: PRODUCT.currency
+        });
+        vcObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  vcObserver.observe(productSection);
+}
+
+/* ============================================
+   PRODUCT — Image gallery
+   ============================================ */
+const mainImage = document.getElementById('mainProductImage');
+const thumbs = document.querySelectorAll('.product__thumb');
+
+thumbs.forEach(thumb => {
+  thumb.addEventListener('click', () => {
+    thumbs.forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
+    if (thumb.dataset.srcset) mainImage.srcset = thumb.dataset.srcset;
+    if (thumb.dataset.sizes) mainImage.sizes = thumb.dataset.sizes;
+    mainImage.src = thumb.dataset.img;
+    mainImage.alt = thumb.querySelector('img').alt;
+  });
+});
+
+/* ============================================
+   PRODUCT — Size selection (showcase section)
+   ============================================ */
+const sizeChips = document.querySelectorAll('.size-chip');
+const stockIndicator = document.getElementById('stockIndicator');
+const addToCartBtn = document.getElementById('addToCartBtn');
+
+sizeChips.forEach(chip => {
+  const size = chip.dataset.size;
+  const stock = parseInt(chip.dataset.stock);
+
+  if (stock <= 0) {
+    chip.classList.add('out-of-stock');
+    chip.disabled = true;
+  }
+
+  chip.addEventListener('click', () => {
+    if (stock <= 0) return;
+
+    sizeChips.forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    selectSize(size, stock);
+    showMobileSizePopup(chip);
+
+    if (addToCartBtn) addToCartBtn.disabled = false;
+  });
+});
+
+/* ============================================
+   CHECKOUT — Unified Size + Quantity + Summary
+   ============================================ */
+const orderSizeChips = document.querySelectorAll('.order__size-chip');
+const orderStockIndicator = document.getElementById('orderStockIndicator');
+const orderQtyMinus = document.getElementById('orderQtyMinus');
+const orderQtyPlus = document.getElementById('orderQtyPlus');
+const orderQtyValue = document.getElementById('orderQtyValue');
+const mobileSizePopup = document.getElementById('mobileSizePopup');
+const mobileSizePopupClose = document.getElementById('mobileSizePopupClose');
+const mobileSizePopupTitle = document.getElementById('mobileSizePopupTitle');
+const mobileSizePopupHeight = document.getElementById('mobileSizePopupHeight');
+const mobileSizePopupWeight = document.getElementById('mobileSizePopupWeight');
+let mobileSizePopupTimer;
+
+const SIZE_DETAILS = {
+  'M/L': { height: '155-165 cm', weight: '51-60 kg' },
+  XL: { height: '160-170 cm', weight: '61-70 kg' },
+  '2XL': { height: '165-175 cm', weight: '71-80 kg' },
+  '3XL': { height: '170-180 cm', weight: '81-90 kg' },
+  '4XL': { height: '175-185 cm', weight: '91-100 kg' }
+};
+
+function isMobileViewport() {
+  return window.matchMedia('(max-width: 768px)').matches;
+}
+
+function showMobileSizePopup(chip) {
+  if (!mobileSizePopup || !isMobileViewport()) return;
+
+  const size = chip.dataset.size;
+  const details = SIZE_DETAILS[size] || {};
+  const height = chip.dataset.height || details.height;
+  const weight = chip.dataset.weight || details.weight;
+
+  if (!height || !weight) return;
+
+  mobileSizePopupTitle.textContent = `Talla ${size}`;
+  mobileSizePopupHeight.textContent = `Altura aprox. ${height}`;
+  mobileSizePopupWeight.textContent = `Peso aprox. ${weight}`;
+  mobileSizePopup.classList.add('active');
+  mobileSizePopup.setAttribute('aria-hidden', 'false');
+
+  window.clearTimeout(mobileSizePopupTimer);
+  mobileSizePopupTimer = window.setTimeout(hideMobileSizePopup, 4200);
+}
+
+function hideMobileSizePopup() {
+  if (!mobileSizePopup) return;
+  mobileSizePopup.classList.remove('active');
+  mobileSizePopup.setAttribute('aria-hidden', 'true');
+  window.clearTimeout(mobileSizePopupTimer);
+}
+
+if (mobileSizePopupClose) {
+  mobileSizePopupClose.addEventListener('click', hideMobileSizePopup);
+}
+
+document.addEventListener('click', (event) => {
+  if (!mobileSizePopup?.classList.contains('active')) return;
+  const clickedSize = event.target.closest('.size-chip, .order__size-chip');
+  if (clickedSize || mobileSizePopup.contains(event.target)) return;
+  hideMobileSizePopup();
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') hideMobileSizePopup();
+});
+
+function selectSize(size, stock) {
+  state.selectedSize = size;
+  state.quantity = 1;
+
+  // Sync product section chips
+  sizeChips.forEach(c => c.classList.toggle('active', c.dataset.size === size));
+
+  // Sync checkout section chips
+  orderSizeChips.forEach(c => c.classList.toggle('active', c.dataset.size === size));
+
+  // Update stock indicators
+  const stockHTML = stock <= 10
+    ? `<span class="low-stock">¡Solo quedan ${stock} unidades!</span>`
+    : `${stock} unidades disponibles`;
+
+  if (stockIndicator) stockIndicator.innerHTML = stockHTML;
+  if (orderStockIndicator) orderStockIndicator.innerHTML = stockHTML;
+
+  // Reset qty displays
+  if (document.getElementById('qtyValue')) document.getElementById('qtyValue').textContent = '1';
+  if (orderQtyValue) orderQtyValue.textContent = '1';
+
+  updateLiveSummary();
+  updateCheckoutSteps();
+
+  metaTrack('AddToCart', {
+    content_name: PRODUCT.name,
+    content_ids: ['arnes-forgecr'],
+    content_type: 'product',
+    value: PRODUCT.price,
+    currency: PRODUCT.currency
+  });
+}
+
+orderSizeChips.forEach(chip => {
+  const size = chip.dataset.size;
+  const stock = parseInt(chip.dataset.stock);
+
+  if (stock <= 0) {
+    chip.classList.add('out-of-stock');
+    chip.disabled = true;
+  }
+
+  chip.addEventListener('click', () => {
+    if (stock <= 0) return;
+    selectSize(size, stock);
+    showMobileSizePopup(chip);
+  });
+});
+
+/* ---- Checkout Quantity ---- */
+if (orderQtyMinus) {
+  orderQtyMinus.addEventListener('click', () => {
+    if (state.quantity > 1) {
+      state.quantity--;
+      orderQtyValue.textContent = state.quantity;
+      if (document.getElementById('qtyValue')) document.getElementById('qtyValue').textContent = state.quantity;
+      updateLiveSummary();
+    }
+  });
+}
+
+if (orderQtyPlus) {
+  orderQtyPlus.addEventListener('click', () => {
+    if (!state.selectedSize) return;
+    const maxStock = PRODUCT.sizes[state.selectedSize];
+    if (state.quantity < maxStock) {
+      state.quantity++;
+      orderQtyValue.textContent = state.quantity;
+      if (document.getElementById('qtyValue')) document.getElementById('qtyValue').textContent = state.quantity;
+      updateLiveSummary();
+    }
+  });
+}
+
+/* ---- Product section quantity (keep working) ---- */
+const qtyMinus = document.getElementById('qtyMinus');
+const qtyPlus = document.getElementById('qtyPlus');
+
+if (qtyMinus) {
+  qtyMinus.addEventListener('click', () => {
+    if (state.quantity > 1) {
+      state.quantity--;
+      document.getElementById('qtyValue').textContent = state.quantity;
+      if (orderQtyValue) orderQtyValue.textContent = state.quantity;
+      updateLiveSummary();
+    }
+  });
+}
+
+if (qtyPlus) {
+  qtyPlus.addEventListener('click', () => {
+    if (!state.selectedSize) return;
+    const maxStock = PRODUCT.sizes[state.selectedSize];
+    if (state.quantity < maxStock) {
+      state.quantity++;
+      document.getElementById('qtyValue').textContent = state.quantity;
+      if (orderQtyValue) orderQtyValue.textContent = state.quantity;
+      updateLiveSummary();
+    }
+  });
+}
+
+/* ---- Add to Cart button (product section — scrolls to checkout) ---- */
+if (addToCartBtn) {
+  addToCartBtn.addEventListener('click', () => {
+    if (!state.selectedSize) return;
+    const pedido = document.getElementById('pedido');
+    if (pedido) {
+      const y = pedido.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  });
+}
+
+/* ============================================
+   LIVE ORDER SUMMARY (checkout card)
+   ============================================ */
+function updateLiveSummary() {
+  const { subtotal, shippingCost, total } = calculateOrderTotals(state.quantity);
+
+  const liveSubtotal = document.getElementById('liveSubtotal');
+  const liveShipping = document.getElementById('liveShipping');
+  const liveTotal = document.getElementById('liveTotal');
+  const submitTotal = document.getElementById('submitTotal');
+
+  if (liveSubtotal) liveSubtotal.textContent = formatCRC(subtotal);
+  if (liveShipping) liveShipping.textContent = 'Gratis';
+  if (liveTotal) liveTotal.textContent = formatCRC(total);
+  if (submitTotal) submitTotal.textContent = total.toLocaleString('es-CR');
+}
+
+/* ============================================
+   CHECKOUT STEP INDICATORS
+   ============================================ */
+function updateCheckoutSteps() {
+  const steps = document.querySelectorAll('.checkout-step');
+  if (!steps.length) return;
+
+  const hasSize = !!state.selectedSize;
+  const hasShipping = !!(
+    document.getElementById('firstName')?.value.trim() &&
+    document.getElementById('provincia')?.value
+  );
+
+  steps.forEach(step => {
+    const num = parseInt(step.dataset.step);
+    step.classList.remove('checkout-step--active', 'checkout-step--done');
+
+    if (num === 1 && hasSize) step.classList.add('checkout-step--done');
+    else if (num === 1) step.classList.add('checkout-step--active');
+
+    if (num === 2 && hasShipping) step.classList.add('checkout-step--done');
+    else if (num === 2 && hasSize) step.classList.add('checkout-step--active');
+
+    if (num === 3 && hasShipping) step.classList.add('checkout-step--active');
+  });
+}
+
+// Update steps when form fields change
+document.querySelectorAll('#orderForm input, #orderForm select, #orderForm textarea').forEach(el => {
+  el.addEventListener('input', updateCheckoutSteps);
+  el.addEventListener('change', updateCheckoutSteps);
+});
+
+/* ============================================
+   FORM VALIDATION
+   ============================================ */
+function validateField(id, condition, errorMsg) {
+  const input = document.getElementById(id);
+  const error = document.getElementById(id + 'Error');
+  if (!input) return true;
+
+  const value = input.value.trim();
+  const isValid = condition(value);
+
+  if (!isValid) {
+    input.classList.add('error');
+    if (error) error.textContent = errorMsg;
+  } else {
+    input.classList.remove('error');
+    if (error) error.textContent = '';
+  }
+
+  return isValid;
+}
+
+function validateForm() {
+  let valid = true;
+
+  valid = validateField('firstName', v => v.length >= 2, 'Ingresá tu nombre') && valid;
+  valid = validateField('lastName', v => v.length >= 2, 'Ingresá tu apellido') && valid;
+  valid = validateField('email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), 'Correo inválido') && valid;
+  valid = validateField('phone', v => v.replace(/\D/g, '').length >= 8, 'Teléfono inválido') && valid;
+  valid = validateField('provincia', v => v !== '', 'Seleccioná una provincia') && valid;
+  valid = validateField('canton', v => v.length >= 2, 'Ingresá tu cantón') && valid;
+  valid = validateField('distrito', v => v.length >= 2, 'Ingresá tu distrito') && valid;
+  valid = validateField('direccion', v => v.length >= 5, 'Ingresá tu dirección') && valid;
+
+  return valid;
+}
+
+/* ============================================
+   FORM SUBMISSION
+   ============================================ */
+const orderForm = document.getElementById('orderForm');
+const loadingOverlay = document.getElementById('loadingOverlay');
+
+orderForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  if (!state.selectedSize) {
+    alert('Por favor seleccioná una talla antes de continuar.');
+    return;
+  }
+
+  if (!validateForm()) return;
+
+  const orderId = generateOrderId();
+  const paymentMethod = 'tilopay';
+  const { subtotal, shippingCost, total } = calculateOrderTotals(state.quantity);
+
+  const orderData = {
+    orderId,
+    customer: {
+      firstName: document.getElementById('firstName').value.trim(),
+      lastName: document.getElementById('lastName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      phone: document.getElementById('phone').value.trim()
+    },
+    items: [{ key: SIZE_KEY[state.selectedSize], qty: state.quantity }],
+    shipping: {
+      province: document.getElementById('provincia').value,
+      canton: document.getElementById('canton').value.trim(),
+      district: document.getElementById('distrito').value.trim(),
+      address: document.getElementById('direccion').value.trim(),
+      cost: shippingCost
+    },
+    subtotal,
+    total,
+    paymentMethod,
+    comments: document.getElementById('comments').value.trim(),
+    createdAt: new Date().toISOString()
+  };
+  const apiBody = {
+    clientOrderId: orderId,
+    nombre: `${orderData.customer.firstName} ${orderData.customer.lastName}`.trim(),
+    telefono: orderData.customer.phone,
+    email: orderData.customer.email,
+    provincia: orderData.shipping.province,
+    canton: orderData.shipping.canton,
+    distrito: orderData.shipping.district,
+    direccion: orderData.shipping.address,
+    comentarios: orderData.comments || '',
+    items: orderData.items
+  };
+
+  loadingOverlay.classList.add('active');
+
+  try {
+    await handleTilopayPayment(orderData, apiBody);
+  } catch (err) {
+    loadingOverlay.classList.remove('active');
+    alert('Error al procesar el pedido. Por favor intentá de nuevo.');
+    console.error('Order error:', err);
+  }
+});
+
+/* ---- Tilopay Payment ---- */
+async function handleTilopayPayment(orderData, apiBody) {
+  const eventId = `ic_${orderData.orderId}`;
+
+  metaTrack('InitiateCheckout', {
+    content_name: PRODUCT.name,
+    content_ids: ['arnes-forgecr'],
+    content_type: 'product',
+    num_items: state.quantity,
+    value: orderData.total,
+    currency: PRODUCT.currency
+  }, { eventID: eventId });
+
+  const res = await fetch(`${API_BASE}/api/tilopay/create-payment`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(apiBody)
+  });
+
+  const data = await res.json();
+
+  if (data.paymentUrl) {
+    window.location.href = data.paymentUrl;
+  } else {
+    console.error('Tilopay details:', data.details);
+    throw new Error(data.error || 'No payment URL received');
+  }
+}
+
+/* ============================================
+   SMOOTH ANCHOR SCROLLING
+   ============================================ */
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', (e) => {
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      const offset = 80;
+      const y = target.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  });
+});
+
+/* ---- Hide floating order CTA while checkout is in view ---- */
+const orderSection = document.getElementById('pedido');
+if (orderSection && 'IntersectionObserver' in window) {
+  const orderObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      document.body.classList.toggle('order-in-view', entry.isIntersecting);
+    });
+  }, { threshold: 0.12 });
+
+  orderObserver.observe(orderSection);
+}
