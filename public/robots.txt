@@ -6,4 +6,4 @@ Disallow: /pedido/
 Disallow: /success.html
 Disallow: /error.html
 
-Sitemap: https://forge.shopping/sitemap.xml
+Sitemap: https://www.forge.shopping/sitemap.xml

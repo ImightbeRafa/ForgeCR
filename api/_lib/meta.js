@@ -96,7 +96,7 @@ export async function sendMetaEvent(eventName, eventId, order, req, customData, 
       event_time: eventTime,
       event_id: eventId,
       action_source: 'website',
-      event_source_url: sourceUrl || 'https://forge.shopping',
+      event_source_url: sourceUrl || SITE.url,
       user_data: userData,
     };
 

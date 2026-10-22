@@ -8,7 +8,8 @@ export function guardPost(req, res) {
     return false;
   }
   const origin = req.headers.origin;
-  const host = req.headers.host;
+  // Behind Caddy/Cloudflare the public host may arrive as X-Forwarded-Host.
+  const host = req.headers['x-forwarded-host'] || req.headers.host;
   if (origin) {
     let originHost = '';
     try { originHost = new URL(origin).host; } catch { /* fall through */ }
@@ -21,7 +22,7 @@ export function guardPost(req, res) {
 }
 
 export function appUrl() {
-  let url = process.env.APP_URL || 'https://forge.shopping';
+  let url = process.env.APP_URL || 'https://www.forge.shopping';
   if (!/^https?:\/\//.test(url)) url = `https://${url}`;
   return url.replace(/\/+$/, '');
 }
@@ -57,6 +58,7 @@ export function cardConfig() {
 
 /** Sandbox mode: no emails, CRM sync, Meta events or Tilopay calls. `npm run dev` defaults to this. */
 export function isDryRun() {
-  if (process.env.VERCEL_ENV === 'production') return false; // never sandbox real traffic
+  // Never sandbox real traffic: Vercel production, or the VPS server (server/prod.js sets NODE_ENV=production).
+  if (process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production') return false;
   return String(process.env.ORDER_DRY_RUN || '').toLowerCase() === 'true';
 }

@@ -22,7 +22,7 @@ export const EXCHANGE_POLICY =
 export const SITE = {
   name: 'ForgeCR',
   legalName: 'Forge Costa Rica',
-  url: 'https://forge.shopping',
+  url: 'https://www.forge.shopping', // final host (forge.shopping 301s here)
   whatsapp: '50661043737',
   whatsappDisplay: '6104-3737',
   instagram: 'https://www.instagram.com/forge.costarica/',

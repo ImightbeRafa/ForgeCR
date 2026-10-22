@@ -97,7 +97,7 @@ export async function processPaidOrder({ order, transactionId, req, source = 'un
     results.email = { success: false, error: error.message };
   }
 
-  const appUrl = (process.env.APP_URL || 'https://forge.shopping').replace(/\/+$/, '');
+  const appUrl = (process.env.APP_URL || 'https://www.forge.shopping').replace(/\/+$/, '');
   const metaEventId = generateEventId('purchase', paidOrder.orderId, transactionId);
   const contentIds = (paidOrder.items || []).map(i => i.key).filter(Boolean);
   const numItems = (paidOrder.items || []).reduce((sum, i) => sum + (parseInt(i.qty, 10) || 0), 0);
