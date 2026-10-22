@@ -83,6 +83,7 @@ async function sendCustomerEmail(order, sinpe) {
             <tbody>${buildItemsHtml(items)}</tbody>
           </table>
           <br>
+          ${order.savings ? `<p><span class="label">Descuento pack:</span> −${formatCRC(order.savings)}</p>` : ''}
           ${order.subtotal ? `<p><span class="label">Subtotal:</span> ${formatCRC(order.subtotal)}</p>` : ''}
           <p><span class="label">Envío:</span> ${order.shippingCost ? formatCRC(order.shippingCost) : 'Gratis'}</p>
           <p><span class="label">Total:</span> <strong>${formatCRC(order.total)}</strong></p>
@@ -112,9 +113,11 @@ async function sendCustomerEmail(order, sinpe) {
 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
+    signal: AbortSignal.timeout(10000),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${resendApiKey}`
+      'Authorization': `Bearer ${resendApiKey}`,
+      'Idempotency-Key': `${order.orderId}-${order.paymentStatus || 'new'}-customer`
     },
     body: JSON.stringify({
       from: 'ForgeCR <orders@forge.shopping>',
@@ -173,6 +176,7 @@ async function sendAdminEmail(order) {
       <div class="info-section">
         <h3>Productos:</h3>
         <p class="info-item">${itemsSummary}</p>
+        ${order.savings ? `<p class="info-item"><span class="label">Descuento pack:</span> −${formatCRC(order.savings)}</p>` : ''}
         ${order.subtotal ? `<p class="info-item"><span class="label">Subtotal:</span> ${formatCRC(order.subtotal)}</p>` : ''}
         <p class="info-item"><span class="label">Envío:</span> ${order.shippingCost ? formatCRC(order.shippingCost) : 'Gratis'}</p>
         <p class="info-item"><span class="label total">Total:</span> <span class="total">${formatCRC(order.total)}</span></p>
@@ -212,9 +216,11 @@ async function sendAdminEmail(order) {
 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
+    signal: AbortSignal.timeout(10000),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${resendApiKey}`
+      'Authorization': `Bearer ${resendApiKey}`,
+      'Idempotency-Key': `${order.orderId}-${order.paymentStatus || 'new'}-admin`
     },
     body: JSON.stringify({
       from: 'ForgeCR <orders@forge.shopping>',
@@ -236,7 +242,7 @@ async function sendAdminEmail(order) {
 export async function sendPendingOrderEmail(order, context = {}) {
   const resendApiKey = process.env.RESEND_API_KEY;
   const notificationEmail = process.env.ORDER_NOTIFICATION_EMAIL;
-  order = normalizeTrustedOrder(order);
+  order = normalizeTrustedOrder(order, { paid: true });
   const items = getOrderItems(order);
   const itemsSummary = items.map(i => `${esc(i.name)} x${i.qty} - ${formatCRC(i.lineTotal)}`).join('<br>');
 
@@ -273,9 +279,11 @@ export async function sendPendingOrderEmail(order, context = {}) {
 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
+    signal: AbortSignal.timeout(10000),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${resendApiKey}`
+      'Authorization': `Bearer ${resendApiKey}`,
+      'Idempotency-Key': `${order.orderId}-pending-alert`
     },
     body: JSON.stringify({
       from: 'ForgeCR <orders@forge.shopping>',
@@ -317,6 +325,7 @@ export async function sendPaymentProcessingAlert(details = {}) {
 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
+    signal: AbortSignal.timeout(10000),
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${resendApiKey}`

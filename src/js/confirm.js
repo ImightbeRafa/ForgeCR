@@ -55,6 +55,13 @@ if (!order || !order.orderId || (wanted && wanted !== order.orderId)) {
   if (items.length) {
     $('[data-lines]').innerHTML = items.map((i) => `
       <div class="recap-line"><span>${esc(i.name || i.key)} <i>× ${Number(i.qty) || 1}</i></span><b>${formatCRC(i.lineTotal ?? 0)}</b></div>`).join('');
+    // Lines are at list price; show the pack discount so the recap adds up to the total.
+    const total = order.total ?? order.sinpe?.amount ?? 0;
+    const discount = items.reduce((s, i) => s + (Number(i.lineTotal) || 0), 0) - total;
+    if (discount > 0) {
+      $('[data-lines]').insertAdjacentHTML('beforeend', `
+      <div class="recap-line recap-line--save"><span>Descuento pack</span><b>−${formatCRC(discount)}</b></div>`);
+    }
     $('[data-total]').textContent = formatCRC(order.total ?? order.sinpe?.amount ?? 0);
     $('[data-recap]').hidden = false;
   }

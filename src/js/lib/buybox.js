@@ -3,7 +3,6 @@
  */
 import { SITE, formatCRC, PRICE, BUNDLE } from '../../../shared/catalog.js';
 import { cart, catalog } from './store.js';
-import { toast } from './ui.js';
 
 export function initBuybox(root = document.querySelector('[data-buybox]')) {
   if (!root) return null;
@@ -12,6 +11,7 @@ export function initBuybox(root = document.querySelector('[data-buybox]')) {
   let keyA = '';
   let keyB = '';
 
+  const sizesBox = root.querySelector('[data-sizes]');
   const totalEl = root.querySelector('[data-bb-total]');
   const saveEl = root.querySelector('[data-bb-save]');
   const hint = root.querySelector('[data-size-hint]');
@@ -50,14 +50,11 @@ export function initBuybox(root = document.querySelector('[data-buybox]')) {
       saveEl.textContent = savings > 0 ? `Ahorrás ${formatCRC(savings)}` : '';
     }
 
-    const label = ready ? `Agregar al carrito · ${formatCRC(total)}` : pack === 2 ? 'Elegí ambas tallas' : 'Elegí una talla';
+    // Buttons stay enabled: a click without a size points the shopper at the size picker instead.
     addBtns.forEach((btn) => {
-      btn.disabled = !ready;
-      if (!btn.closest('[data-sticky-buy]')) btn.textContent = label;
+      if (!btn.closest('[data-sticky-buy]')) btn.textContent = `Comprar ahora · ${formatCRC(total)}`;
     });
-    buyBtns.forEach((btn) => {
-      btn.disabled = !ready;
-    });
+    if (ready) sizesBox?.classList.remove('is-invalid');
 
     if (hint) {
       hint.textContent = ready
@@ -112,9 +109,23 @@ export function initBuybox(root = document.querySelector('[data-buybox]')) {
     });
   });
 
+  function askForSize() {
+    sizesBox?.classList.remove('is-invalid');
+    void sizesBox?.offsetWidth; // restart the shake animation
+    sizesBox?.classList.add('is-invalid');
+    if (hint) hint.textContent = pack === 2 && keyA ? 'Elegí la talla de la segunda unidad' : 'Elegí tu talla para continuar';
+    const target = pack === 2 && keyA ? second : sizesBox;
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const chip = target?.querySelector(pack === 2 && keyA ? '[data-size-key-b]:not([disabled])' : '[data-size-key]:not([disabled])');
+    chip?.focus({ preventScroll: true });
+  }
+
   function addSelected() {
     const { ready } = previewTotal();
-    if (!ready) return false;
+    if (!ready) {
+      askForSize();
+      return false;
+    }
     if (pack === 1) return cart.add(keyA, 1);
     if (keyA === keyB) return cart.add(keyA, 2);
     const a = cart.add(keyA, 1);
@@ -125,7 +136,6 @@ export function initBuybox(root = document.querySelector('[data-buybox]')) {
   addBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       if (!addSelected()) return;
-      toast('Agregado al carrito');
       window.location.href = '/checkout/';
     });
   });
@@ -141,7 +151,7 @@ export function initBuybox(root = document.querySelector('[data-buybox]')) {
     if (ready) {
       if (addSelected()) window.location.href = '/checkout/';
     } else {
-      root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      askForSize();
     }
   });
 
@@ -150,7 +160,10 @@ export function initBuybox(root = document.querySelector('[data-buybox]')) {
   const mainImg = gallery?.querySelector('[data-gal-main]');
   gallery?.querySelectorAll('.bb-thumb').forEach((thumb) => {
     thumb.addEventListener('click', () => {
-      gallery.querySelectorAll('.bb-thumb').forEach((t) => t.classList.toggle('is-active', t === thumb));
+      gallery.querySelectorAll('.bb-thumb').forEach((t) => {
+        t.classList.toggle('is-active', t === thumb);
+        t.setAttribute('aria-pressed', String(t === thumb));
+      });
       if (!mainImg) return;
       mainImg.src = thumb.getAttribute('data-gal-src');
       const ss = thumb.getAttribute('data-gal-srcset');
@@ -159,5 +172,30 @@ export function initBuybox(root = document.querySelector('[data-buybox]')) {
   });
 
   sync();
+  initStickyBuy(root);
   return { sync, previewTotal };
+}
+
+/** Phones: show the sticky bar while neither the buy button nor a closing CTA is on screen. */
+function initStickyBuy(root) {
+  const sticky = document.querySelector('[data-sticky-buy]');
+  const buyCta = root.querySelector('[data-add-cart]');
+  if (!sticky || !buyCta || !('IntersectionObserver' in window)) return;
+  const hiders = [buyCta, ...document.querySelectorAll('[data-hide-sticky]')];
+  const headerH = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 64;
+  const onScreen = (el) => {
+    const r = el.getBoundingClientRect();
+    return r.bottom > headerH() && r.top < window.innerHeight;
+  };
+  // Only after the shopper has scrolled past the buy button, never above it (the hero has its own CTA).
+  const passed = () => buyCta.getBoundingClientRect().bottom < headerH();
+  const syncSticky = () => {
+    const show = window.innerWidth <= 768 && passed() && !hiders.some(onScreen);
+    sticky.hidden = !show;
+    document.body.classList.toggle('has-sticky-buy', show);
+  };
+  const io = new IntersectionObserver(syncSticky, { threshold: 0 });
+  hiders.forEach((el) => io.observe(el));
+  window.addEventListener('resize', syncSticky, { passive: true });
+  syncSticky();
 }

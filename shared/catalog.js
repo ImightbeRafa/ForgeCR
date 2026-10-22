@@ -126,12 +126,13 @@ export function buildCatalog(config = {}) {
     return Math.floor(n / BUNDLE.qty) * BUNDLE.price + (n % BUNDLE.qty) * PRICE;
   };
 
-  const priceOrder = (rawItems) => {
+  /** opts.ignoreStock: price an already-paid order even if a size sold out since. */
+  const priceOrder = (rawItems, opts = {}) => {
     const merged = new Map();
     for (const it of Array.isArray(rawItems) ? rawItems : []) {
       const key = it && it.key;
       const qty = Math.min(MAX_QTY_PER_LINE, Math.floor(Number(it && it.qty)));
-      if (!products[key] || !(qty > 0) || isSoldOut(key)) continue;
+      if (!products[key] || !(qty > 0) || (!opts.ignoreStock && isSoldOut(key))) continue;
       merged.set(key, Math.min(MAX_QTY_PER_LINE, (merged.get(key) || 0) + qty));
     }
     const items = [...merged].map(([key, qty]) => {
@@ -179,8 +180,10 @@ export const PROVINCES = ['San José', 'Alajuela', 'Cartago', 'Heredia', 'Guanac
 export const FAQ = [
   ['¿Cómo sé qué talla elegir?', 'Usá la guía de tallas según tu estatura y peso. Si estás entre dos tallas, elegí la más pequeña para más tensión.'],
   ['¿Cómo se usa el arnés?', 'Ponételo como un chaleco, centrá el panel en la espalda y ajustá las correas hasta sentir soporte cómodo. Empezá suave.'],
-  ['¿Puedo usarlo todo el día?', 'Sí, muchas personas lo usan en oficina o gym. Si sentís molestia, aflojá o sacalo un rato.'],
-  ['¿Cómo puedo pagar?', 'Con SINPE Móvil (te damos el número al confirmar) o con tarjeta por Tilopay.'],
+  ['¿Cuánto tiempo lo uso al día?', 'Empezá con unos 20 minutos al día y aumentá poco a poco según tu comodidad. Si sentís molestia, aflojalo o sacalo un rato.'],
+  ['¿Se puede usar debajo de la ropa?', 'Sí. Es de perfil bajo y material transpirable, así que lo podés usar debajo de la camisa o la ropa del gym.'],
+  ['¿Puedo usarlo en el gimnasio?', 'Sí. La malla transpirable y las correas ajustables están pensadas para moverte con él.'],
+  ['¿Cómo puedo pagar?', 'Con SINPE Móvil (te damos el número y el monto al confirmar el pedido) o con tarjeta de crédito o débito por la pasarela segura de Tilopay.'],
   ['¿Cuánto cuesta y cuánto tarda el envío?', `El envío a todo Costa Rica es GRATIS por ${SITE.courier}. Tarda ${SITE.deliveryDays}.`],
   ['¿Hacen cambios de talla?', `Escribinos por WhatsApp si la talla no te queda. ${EXCHANGE_POLICY}`],
   ['¿Es un producto médico?', 'No. Es un soporte atlético. Si tenés dolor, consultá a un profesional de salud.'],

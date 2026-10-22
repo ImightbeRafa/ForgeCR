@@ -22,10 +22,14 @@ export function getTrustedOrderItems(order = {}) {
   return catalog.priceOrder(raw.map((i) => ({ key: i && i.key, qty: toQty(i && i.qty) }))).items;
 }
 
-/** Re-prices an order from the catalog. Client-supplied prices/totals are ignored. */
-export function normalizeTrustedOrder(order = {}) {
+/**
+ * Re-prices an order from the catalog. Client-supplied prices/totals are ignored.
+ * Paid orders (paymentStatus 'completed' or opts.paid) skip the stock filter: the money is already in.
+ */
+export function normalizeTrustedOrder(order = {}, opts = {}) {
   const priced = catalog.priceOrder(
-    (Array.isArray(order.items) ? order.items : []).map((i) => ({ key: i && i.key, qty: toQty(i && i.qty) }))
+    (Array.isArray(order.items) ? order.items : []).map((i) => ({ key: i && i.key, qty: toQty(i && i.qty) })),
+    { ignoreStock: Boolean(opts.paid || order.paymentStatus === 'completed') }
   );
   return {
     ...order,

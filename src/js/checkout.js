@@ -82,7 +82,18 @@ function applyMethods() {
   syncMethod();
 }
 
-/* Payment radios stay visible. The server still rejects SINPE if env is missing. */
+/* Hide a method the server has not configured (e.g. no Tilopay keys) so nobody hits a dead end. */
+async function loadConfig() {
+  try {
+    const res = await fetch('/api/config', { headers: { Accept: 'application/json' } });
+    if (!res.ok) return;
+    const cfg = await res.json();
+    methods = { sinpe: Boolean(cfg.sinpe?.enabled), card: Boolean(cfg.card?.enabled) };
+    // Never leave the customer with no way to pay: if config says neither, show both and let the server answer.
+    if (!methods.sinpe && !methods.card) methods = { sinpe: true, card: true };
+    applyMethods();
+  } catch { /* offline: keep both options */ }
+}
 
 /* ---------- validation UI ---------- */
 function fieldEl(name) { return form.elements[name]; }
@@ -146,7 +157,8 @@ function restoreCustomer() {
 
 /* ---------- order id: stable per cart+customer so double submits map to one order ---------- */
 function clientOrderId(customer, total) {
-  const fingerprint = JSON.stringify({ e: customer.email, p: customer.telefono.replace(/\D/g, ''), i: cart.items(), t: total });
+  // The method is part of the fingerprint: a SINPE attempt and a card payment are different orders.
+  const fingerprint = JSON.stringify({ m: method(), e: customer.email, p: customer.telefono.replace(/\D/g, ''), i: cart.items(), t: total });
   try {
     const cur = JSON.parse(sessionStorage.getItem(CLIENT_ORDER_KEY) || 'null');
     if (cur && cur.fingerprint === fingerprint && /^ORD-\d{10,}-\d{4}$/.test(cur.orderId)) return cur.orderId;
@@ -252,6 +264,7 @@ restoreCustomer();
 renderSummary();
 syncMethod();
 applyMethods();
+loadConfig();
 
 // Desktop shows the summary expanded and always visible; mobile starts collapsed to keep the form first.
 const mq = matchMedia('(min-width: 900px)');

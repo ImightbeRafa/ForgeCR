@@ -131,7 +131,7 @@
 .bb-pack__main span { color: #999; font-size: 12px; }
 .bb-pack__price { text-align: right; display: grid; gap: 2px; }
 .bb-pack__price b { color: #fff; font-size: 16px; }
-.bb-pack__price s { color: #777; font-size: 12px; }
+.bb-pack__price s { color: #9e9e9e; font-size: 12px; }
 .bb-pack__tag {
   position: absolute; top: -9px; right: 12px;
   background: var(--action-lime); color: #0e0e0e;
@@ -156,13 +156,23 @@
 }
 .bb-chip__size { font-weight: 800; font-size: 14px; }
 .bb-chip__meta { font-size: 10px; color: #888; }
-.bb-chip[aria-pressed="true"] { border-color: var(--action-lime); color: var(--action-lime); }
+.bb-chip { min-height: 48px; transition: border-color var(--dur-fast, .18s), background var(--dur-fast, .18s); }
+.bb-chip:hover:not(:disabled) { border-color: #777; }
+.bb-chip[aria-pressed="true"] { border-color: var(--action-lime); color: var(--action-lime); background: rgba(199, 255, 0, .08); box-shadow: inset 0 0 0 1px var(--action-lime); }
+.bb-chip:focus-visible { outline: 3px solid var(--action-lime); outline-offset: 2px; }
 .bb-chip.is-sold, .bb-chip:disabled { opacity: .35; text-decoration: line-through; cursor: not-allowed; }
 .bb-sizes__second { margin-top: 14px; }
-.bb-hint { margin: 10px 0 0; font-size: 13px; color: #999; }
+.bb-hint { margin: 10px 0 0; font-size: 13px; color: #b3b3b3; }
+.bb-sizes.is-invalid .bb-hint { color: var(--error, #ffb4ab); font-weight: 700; }
+.bb-sizes.is-invalid .bb-sizes__chips:not([data-sizes-b]) .bb-chip[aria-pressed="false"],
+.bb-sizes.is-invalid [data-size-second]:not([hidden]) .bb-chip[aria-pressed="false"] { border-color: var(--error, #ffb4ab); }
+.bb-sizes.is-invalid { animation: bb-shake .36s ease; }
+@keyframes bb-shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+@media (prefers-reduced-motion: reduce) { .bb-sizes.is-invalid { animation: none; } }
 
 .bb-actions { display: grid; gap: 10px; margin-bottom: 16px; }
 .bb-cta:disabled, .bb-buy:disabled { opacity: .45; cursor: not-allowed; }
+.bb-cta { min-height: 56px; font-size: 0.9375rem; }
 .bb-wa {
   text-align: center;
   font-size: 13px;
@@ -235,8 +245,9 @@
   height: auto;
   display: block;
   border: 1px solid var(--outline, #333);
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 4 / 5;
   object-fit: cover;
+  object-position: 50% 0;
 }
 
 .pdp-pain__grid {
@@ -250,7 +261,7 @@
   background: var(--surface, #141414);
   padding: 0 0 14px;
 }
-.pdp-pain__card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.pdp-pain__card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 8%; display: block; }
 .pdp-pain__card h3 { margin: 12px 14px 4px; font-size: 16px; color: #fff; }
 .pdp-pain__card p { margin: 0 14px; font-size: 13px; color: #999; }
 
@@ -440,7 +451,7 @@
 
 .pdp-ship p { color: #bbb; line-height: 1.55; max-width: 52ch; }
 .pdp-ship a { color: var(--action-lime); font-weight: 700; }
-.pdp-fineprint { margin-top: 20px; font-size: 12px; color: #777; }
+.pdp-fineprint { margin-top: 20px; font-size: 12px; color: #9e9e9e; }
 
 .pdp-final__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
 

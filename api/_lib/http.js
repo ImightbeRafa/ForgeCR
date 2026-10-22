@@ -44,6 +44,10 @@ export const ORDER_ID_RE = /^ORD-\d{10,}-\d{4}$/;
 export function sinpeConfig() {
   const phone = String(process.env.SINPE_PHONE || '').replace(/\D/g, '');
   const holder = String(process.env.SINPE_HOLDER || '').trim();
+  if (!(phone.length === 8 && holder) && isDryRun()) {
+    // Sandbox only (isDryRun is never true in production): lets the SINPE flow be tested locally.
+    return { enabled: true, phone: '88880000', holder: 'Nombre de ejemplo (sandbox)' };
+  }
   return { enabled: phone.length === 8 && Boolean(holder), phone, holder };
 }
 

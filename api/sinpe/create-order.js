@@ -52,8 +52,19 @@ export default async function handler(req, res) {
     if (isDryRun()) {
       console.log('[SINPE][dry-run] order not sent anywhere:', orderId, order.total);
     } else {
-      const [betsy, email, meta] = await Promise.allSettled([
-        sendOrderToBetsyWithRetry(order),
+      // CRM first: a retry of the same order (double click, lost response) is recognised there
+      // and must not email the customer again.
+      const betsyFirst = await Promise.allSettled([sendOrderToBetsyWithRetry(order)]);
+      if (betsyFirst[0].status === 'fulfilled' && betsyFirst[0].value && betsyFirst[0].value.alreadyExists) {
+        console.log('[SINPE] duplicate submit, order already recorded:', orderId);
+        return res.json({
+          success: true, orderId, metaEventId, total: order.total,
+          items: order.items.map(({ key, name, qty, lineTotal }) => ({ key, name, qty, lineTotal })),
+          customer: { nombre: order.nombre, email: order.email },
+          sinpe: { phone: sinpe.phone, holder: sinpe.holder, amount: order.total, reference: orderId }
+        });
+      }
+      const [email, meta] = await Promise.allSettled([
         sendOrderEmail(order, { sinpe }),
         sendMetaEvent('Lead', metaEventId, order, req, {
           value: order.total, currency: 'CRC', content_type: 'product',
@@ -62,6 +73,7 @@ export default async function handler(req, res) {
         }, `${site}/checkout/`)
       ]);
 
+      const betsy = betsyFirst[0];
       crmOk = betsy.status === 'fulfilled' && Boolean(betsy.value && betsy.value.success);
       emailOk = email.status === 'fulfilled' && Boolean(email.value && email.value.success);
       if (!crmOk && !emailOk) {

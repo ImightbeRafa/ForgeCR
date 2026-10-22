@@ -152,7 +152,7 @@ export function faqList(items = FAQ, openFirst = true) {
   return `<div class="faq__list">${items
     .map(
       ([q, a], i) =>
-        `<details class="faq-item"${openFirst && i === 0 ? ' open' : ''}><summary class="faq-item__q">${esc(q)}</summary><div class="faq-item__a">${esc(a)}</div></details>`
+        `<details class="faq-item"${openFirst && i === 0 ? ' open' : ''}><summary class="faq-item__q">${esc(q)}<svg class="icon faq-item__icon" aria-hidden="true" focusable="false"><use href="#icon-expand-more"></use></svg></summary><div class="faq-item__a">${esc(a)}</div></details>`
     )
     .join('')}</div>`;
 }

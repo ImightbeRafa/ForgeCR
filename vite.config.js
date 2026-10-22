@@ -33,7 +33,7 @@ function htmlInputs() {
  */
 function devApiPlugin() {
   return {
-    name: 'patchhouse-dev-api',
+    name: 'forgecr-dev-api',
     apply: 'serve',
     configureServer(server) {
       // Safety: local dev never emails customers, writes to the CRM or fires Meta events unless explicitly disabled.

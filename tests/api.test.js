@@ -77,13 +77,40 @@ test('SINPE: rejects empty or unknown carts and honeypot spam', async () => {
   );
 });
 
-test('SINPE: unavailable when SINPE_PHONE/HOLDER are not configured', async () => {
+test('SINPE: unavailable in production when SINPE_PHONE/HOLDER are not configured', async () => {
+  const phone = process.env.SINPE_PHONE;
+  process.env.SINPE_PHONE = '';
+  process.env.VERCEL_ENV = 'production';
+  const { sinpeConfig } = await import('../api/_lib/http.js');
+  const prodConfig = sinpeConfig();
+  delete process.env.VERCEL_ENV;
+  process.env.ORDER_DRY_RUN = 'false';
+  const r = await call(sinpe, { body: { ...customer, items: [{ key: 'arnes-ml', qty: 1 }] } });
+  process.env.ORDER_DRY_RUN = 'true';
+  process.env.SINPE_PHONE = phone;
+  assert.equal(prodConfig.enabled, false);
+  assert.equal(r.status, 503);
+  assert.equal(r.body.error, 'sinpe_unavailable');
+});
+
+test('SINPE: the local sandbox uses a sample number when none is configured', async () => {
   const phone = process.env.SINPE_PHONE;
   process.env.SINPE_PHONE = '';
   const r = await call(sinpe, { body: { ...customer, items: [{ key: 'arnes-ml', qty: 1 }] } });
   process.env.SINPE_PHONE = phone;
-  assert.equal(r.status, 503);
-  assert.equal(r.body.error, 'sinpe_unavailable');
+  assert.equal(r.status, 200);
+  assert.equal(r.body.sinpe.phone, '88880000');
+});
+
+test('Paid orders keep sizes that sold out after payment', async () => {
+  const { normalizeTrustedOrder, catalog } = await import('../api/_lib/order.js');
+  catalog.config.soldOut.push('arnes-4xl');
+  const open = normalizeTrustedOrder({ items: [{ key: 'arnes-4xl', qty: 1 }] });
+  const paid = normalizeTrustedOrder({ items: [{ key: 'arnes-4xl', qty: 1 }] }, { paid: true });
+  catalog.config.soldOut.pop();
+  assert.equal(open.items.length, 0);
+  assert.equal(paid.items.length, 1);
+  assert.equal(paid.total, 14900);
 });
 
 test('API only accepts same-origin POST', async () => {

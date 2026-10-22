@@ -6,8 +6,9 @@
  */
 
 import crypto from 'crypto';
+import { SITE } from '../../shared/catalog.js';
 
-const PIXEL_ID = '2330584627352047';
+const PIXEL_ID = process.env.META_PIXEL_ID || SITE.pixelId;
 const GRAPH_API_VERSION = 'v21.0';
 const GRAPH_API_URL = `https://graph.facebook.com/${GRAPH_API_VERSION}/${PIXEL_ID}/events`;
 

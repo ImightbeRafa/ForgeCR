@@ -26,7 +26,7 @@ function validatePaidOrder(order) {
 }
 
 export async function processPaidOrder({ order, transactionId, req, source = 'unknown' }) {
-  const normalized = normalizeTrustedOrder(order);
+  const normalized = normalizeTrustedOrder(order, { paid: true });
   const key = getPaymentKey(normalized.orderId, transactionId);
 
   if (processedPayments.has(key)) {

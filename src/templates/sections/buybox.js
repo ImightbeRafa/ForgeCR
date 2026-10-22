@@ -9,7 +9,7 @@ function galleryThumbs(items) {
   return items
     .map(([id, label], i) => {
       const srcset = `/images/product/${id}-400.webp 400w, /images/product/${id}-800.webp 800w, /images/product/${id}-1200.webp 1200w`;
-      return `<button type="button" class="bb-thumb${i === 0 ? ' is-active' : ''}" data-gal-src="/images/product/${id}-800.webp" data-gal-srcset="${srcset}" aria-label="${esc(label)}">
+      return `<button type="button" class="bb-thumb${i === 0 ? ' is-active' : ''}" aria-pressed="${i === 0}" data-gal-src="/images/product/${id}-800.webp" data-gal-srcset="${srcset}" aria-label="${esc(label)}">
             <img src="/images/product/${id}-thumb.webp" width="80" height="80" alt="" loading="lazy">
           </button>`;
     })
@@ -72,7 +72,7 @@ export function reelsSection({
       ${reels
         .map(
           ([vid, label]) => `<figure class="pdp-video__frame" data-lazy-video>
-          <video muted loop playsinline preload="none" poster="/video/${vid}-poster.webp" width="480" height="854" aria-label="${esc(label)}">
+          <video muted loop playsinline preload="none" data-poster="/video/${vid}-poster.webp" width="480" height="854" aria-label="${esc(label)}">
             <source data-src="/video/${vid}.mp4" type="video/mp4">
           </video>
           <figcaption>${esc(label)}</figcaption>
@@ -111,14 +111,14 @@ export function buybox(cat, {
         <label class="bb-pack" data-pack="1">
           <input type="radio" name="pack-${id}" value="1" checked>
           <span class="bb-pack__radio" aria-hidden="true"></span>
-          <span class="bb-pack__main"><b>1 unidad</b><span>${formatCRC(PRICE)} · envío gratis</span></span>
+          <span class="bb-pack__main"><b>1 arnés</b><span>Envío gratis</span></span>
           <span class="bb-pack__price"><b>${formatCRC(PRICE)}</b></span>
         </label>
         <label class="bb-pack is-popular" data-pack="2">
           <span class="bb-pack__tag">AHORRÁS ${formatCRC(bundle.save)}</span>
           <input type="radio" name="pack-${id}" value="2">
           <span class="bb-pack__radio" aria-hidden="true"></span>
-          <span class="bb-pack__main"><b>2 unidades</b><span>${formatCRC(Math.round(bundle.price / 2))} c/u · mezcla tallas</span></span>
+          <span class="bb-pack__main"><b>Pack de 2</b><span>${formatCRC(Math.round(bundle.price / 2))} c/u · podés mezclar tallas</span></span>
           <span class="bb-pack__price"><b>${formatCRC(bundle.price)}</b><s>${formatCRC(PRICE * 2)}</s></span>
         </label>
       </fieldset>`
@@ -137,7 +137,7 @@ export function buybox(cat, {
             loading="${compact ? 'lazy' : 'eager'}"${compact ? '' : ' fetchpriority="high"'} decoding="async"
           >
         </div>
-        <div class="bb-gallery__thumbs" role="tablist" aria-label="Galería">
+        <div class="bb-gallery__thumbs" role="group" aria-label="Galería de fotos">
           ${galleryThumbs(compact ? COMPACT_THUMBS : FULL_THUMBS)}
         </div>
       </div>`
@@ -172,12 +172,11 @@ export function buybox(cat, {
           <span class="bb-lbl">Talla unidad 2</span>
           <div class="bb-sizes__chips" data-sizes-b role="group" aria-label="Talla segunda unidad">${chips.replace(/data-size-key=/g, 'data-size-key-b=')}</div>
         </div>
-        <p class="bb-hint" data-size-hint>Elegí una talla para continuar</p>
+        <p class="bb-hint" data-size-hint aria-live="polite">Elegí una talla para continuar</p>
       </div>
       <div class="bb-actions buy-actions">
-        <button type="button" class="btn btn--primary bb-cta" data-add-cart disabled>Agregar al carrito · ${formatCRC(PRICE)}</button>
-        <button type="button" class="btn btn--ghost bb-buy" data-buy-now disabled>Comprar ahora</button>
-        <a class="bb-wa" data-wa-order href="https://wa.me/${SITE.whatsapp}" target="_blank" rel="noopener">Pedir por WhatsApp</a>
+        <button type="button" class="btn btn--primary bb-cta" data-add-cart>Comprar ahora · ${formatCRC(PRICE)}</button>
+        <a class="bb-wa" data-wa-order href="https://wa.me/${SITE.whatsapp}" target="_blank" rel="noopener">¿Preferís pedir por WhatsApp?</a>
       </div>
       <div class="bb-pay">
         <span class="bb-lbl">Métodos de pago</span>
@@ -194,4 +193,18 @@ export function buybox(cat, {
     </div>
   </div>
 </section>`;
+}
+
+/** Mobile sticky buy bar: shows once the main buy button scrolls away (see initStickyBuy). */
+export function stickyBar() {
+  return `
+<div class="pdp-sticky" data-sticky-buy hidden>
+  <div class="pdp-sticky__inner">
+    <div class="pdp-sticky__meta">
+      <span data-sticky-size>Elegí talla</span>
+      <b data-sticky-total>${formatCRC(PRICE)}</b>
+    </div>
+    <button type="button" class="btn btn--primary" data-sticky-scroll>Comprar</button>
+  </div>
+</div>`;
 }

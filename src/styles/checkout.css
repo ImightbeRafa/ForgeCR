@@ -430,9 +430,10 @@ body.is-checkout .wa-float { bottom: 88px; }
   font-size: 15px;
 }
 .recap-line i { font-style: normal; color: var(--muted); }
+.recap-line--save, .recap-line--save b { color: var(--ok); }
 
 @media (max-width: 639px) {
-  .checkout { padding-inline: 0; }
+  .checkout { padding-inline: 14px; }
   .group { padding: 16px; }
   .summary-toggle summary,
   .summary-body { padding-inline: 16px; }

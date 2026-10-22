@@ -1,9 +1,38 @@
-import { SITE, FAQ, PRICE, formatCRC } from '../../../shared/catalog.js';
-import { layout, readFragment, faqJsonLd } from '../layout.js';
-import { buybox, reelsSection } from '../sections/buybox.js';
+import { SITE, FAQ, PRICE, REVIEWS, REVIEWS_ARE_PLACEHOLDERS, formatCRC } from '../../../shared/catalog.js';
+import { layout, readFragment, faqList, faqJsonLd, esc } from '../layout.js';
+import { buybox, reelsSection, stickyBar } from '../sections/buybox.js';
+
+/** Only real reviews are published; placeholders stay out of the live site. */
+function reviews() {
+  const rows = REVIEWS.arnes || [];
+  if (REVIEWS_ARE_PLACEHOLDERS || !rows.length) return '';
+  return `
+  <section class="testimonials" id="testimonios">
+    <div class="container">
+      <div class="testimonials__header reveal-up">
+        <h2 class="testimonials__title">Lo que dicen nuestros clientes</h2>
+      </div>
+      <div class="testimonials__grid">
+        ${rows
+          .map(
+            (r, i) => `<div class="testimonial-card reveal-up" data-delay="${i * 100}">
+          <p class="testimonial-card__text">“${esc(r.text)}”</p>
+          <div class="testimonial-card__author">
+            <span class="testimonial-card__name">${esc(r.author)}</span>
+            <span class="testimonial-card__location">${esc(r.city)}</span>
+          </div>
+        </div>`
+          )
+          .join('')}
+      </div>
+    </div>
+  </section>`;
+}
 
 export function homePage(cat) {
   const main = readFragment('home-main.html')
+    .replace('<!--@PRICE-->', formatCRC(PRICE))
+    .replace('<!--@WA-->', SITE.whatsappDisplay)
     .replace(
       '<!--@BUYBOX-->',
       buybox(cat, {
@@ -19,12 +48,14 @@ export function homePage(cat) {
       reelsSection({
         id: 'en-uso',
         title: 'Miralo en uso',
-        lead: 'Tres tomas reales: cómo se pone, cómo se usa y el arnés de cerca.'
+        lead: 'Tomas reales: cómo se pone, cómo se usa y el arnés de cerca.'
       })
-    );
+    )
+    .replace('<!--@REVIEWS-->', reviews())
+    .replace('<!--@FAQ-->', faqList(FAQ, false)) + stickyBar();
   return layout({
-    title: 'ForgeCR — Forjá tu Postura',
-    description: 'Arnés postural de alto rendimiento. Envío gratis en Costa Rica. Pagá con SINPE Móvil o tarjeta.',
+    title: 'ForgeCR — Forjá tu Postura | Arnés postural en Costa Rica',
+    description: `Arnés postural de alto rendimiento desde ${formatCRC(PRICE)}. Envío gratis a todo Costa Rica. Pagá con SINPE Móvil o tarjeta.`,
     path: '/',
     page: 'home',
     nav: 'tienda',
@@ -32,7 +63,7 @@ export function homePage(cat) {
     css: ['/src/styles/pdp.css'],
     image: '/images/product/pack-back-1200.webp',
     head: `
-  <link rel="preload" as="image" type="image/webp" href="/images/product/pack-back-800.webp" imagesrcset="/images/product/pack-back-400.webp 400w, /images/product/pack-back-800.webp 800w, /images/product/pack-back-1200.webp 1200w" imagesizes="100vw" fetchpriority="high">`,
+  <link rel="preload" as="image" type="image/webp" href="/images/product/wear-man-800.webp" imagesrcset="/images/product/wear-man-400.webp 400w, /images/product/wear-man-800.webp 800w, /images/product/wear-man-1200.webp 1200w" imagesizes="(max-width: 768px) 70vw, 44vw" fetchpriority="high">`,
     main,
     jsonld: [
       {
