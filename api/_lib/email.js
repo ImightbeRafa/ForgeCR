@@ -69,7 +69,7 @@ async function sendCustomerEmail(order, sinpe) {
     <div class="container">
       <div class="header">
         <h1>ForgeCR</h1>
-        <p>Parches Transdérmicos Naturales</p>
+        <p>Arnés postural de alto rendimiento</p>
       </div>
       <div class="content">
         <h2>Confirmación de Pedido</h2>

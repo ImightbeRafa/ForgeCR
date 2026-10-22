@@ -6,12 +6,18 @@
  */
 
 export const PRICE = 14900;
+/** 2-unit pack price (mixed sizes OK). Toggle via VITE_BUNDLE_2=0. */
+export const BUNDLE = { qty: 2, price: 26900 };
 /** Always free shipping (owner-approved). */
 export const SHIPPING_COST = 0;
 export const FREE_SHIPPING_FROM = 0;
 export const shippingFor = (subtotal) => (subtotal <= 0 ? 0 : 0);
 export const formatCRC = (n) => `₡${String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
 export const MAX_QTY_PER_LINE = 10;
+
+/** Soft exchange wording — contact us, not a guarantee. */
+export const EXCHANGE_POLICY =
+  'Si tu producto llega con un problema y está sellado o sin usar, escribinos por WhatsApp dentro de 48 h y lo revisamos.';
 
 export const SITE = {
   name: 'ForgeCR',
@@ -34,7 +40,7 @@ export const PRODUCT = {
   slug: 'arnes-forgecr',
   name: 'Arnés ForgeCR',
   short: 'Arnés',
-  image: 'arnes',
+  image: 'product/pack-front',
   accent: '#C8FF3D',
   tagline: 'Soporte postural de alto rendimiento para tu día a día',
   result: 'Una sensación de pecho abierto y hombros más firmes mientras entrenás, trabajás o te movés.',
@@ -77,12 +83,13 @@ function list(value) {
 export function readConfig(env = {}) {
   return {
     soldOut: list(env.VITE_SOLD_OUT ?? env.SOLD_OUT),
-    soldOutMessage: env.VITE_SOLD_OUT_MESSAGE || 'Agotado por ahora — escribinos por WhatsApp'
+    soldOutMessage: env.VITE_SOLD_OUT_MESSAGE || 'Agotado por ahora — escribinos por WhatsApp',
+    bundle2: (env.VITE_BUNDLE_2 ?? env.BUNDLE_2 ?? '1') !== '0'
   };
 }
 
 export function buildCatalog(config = {}) {
-  const cfg = { soldOut: [], soldOutMessage: '', ...config };
+  const cfg = { soldOut: [], soldOutMessage: '', bundle2: true, ...config };
   const products = Object.create(null);
 
   for (const size of SIZES) {
@@ -112,6 +119,13 @@ export function buildCatalog(config = {}) {
     return p.price * Math.max(0, Math.floor(qty));
   };
 
+  /** Pair pricing: every 2 units → BUNDLE.price; leftover units at PRICE. */
+  const orderSubtotal = (unitCount) => {
+    const n = Math.max(0, Math.floor(unitCount));
+    if (!cfg.bundle2) return n * PRICE;
+    return Math.floor(n / BUNDLE.qty) * BUNDLE.price + (n % BUNDLE.qty) * PRICE;
+  };
+
   const priceOrder = (rawItems) => {
     const merged = new Map();
     for (const it of Array.isArray(rawItems) ? rawItems : []) {
@@ -133,9 +147,12 @@ export function buildCatalog(config = {}) {
         compareTotal: lineTotal
       };
     });
-    const subtotal = items.reduce((s, i) => s + i.lineTotal, 0);
+    const units = items.reduce((s, i) => s + i.qty, 0);
+    const listTotal = units * PRICE;
+    const subtotal = orderSubtotal(units);
+    const savings = Math.max(0, listTotal - subtotal);
     const shipping = items.length ? shippingFor(subtotal) : 0;
-    return { items, subtotal, shipping, total: subtotal + shipping, savings: 0 };
+    return { items, subtotal, shipping, total: subtotal + shipping, savings, units };
   };
 
   return {
@@ -144,8 +161,10 @@ export function buildCatalog(config = {}) {
     linePrice,
     lineCompare: linePrice,
     priceOrder,
+    orderSubtotal,
     config: cfg,
     product: PRODUCT,
+    bundle: { enabled: Boolean(cfg.bundle2), ...BUNDLE, unitPrice: PRICE, save: PRICE * BUNDLE.qty - BUNDLE.price },
     sizes: () => SIZE_ORDER.map((k) => products[k]).filter(Boolean),
     variants: () => SIZE_ORDER.map((k) => products[k]).filter(Boolean),
     // Compat shims used by leftover ForgeCR helpers during migration
@@ -163,7 +182,9 @@ export const FAQ = [
   ['¿Puedo usarlo todo el día?', 'Sí, muchas personas lo usan en oficina o gym. Si sentís molestia, aflojá o sacalo un rato.'],
   ['¿Cómo puedo pagar?', 'Con SINPE Móvil (te damos el número al confirmar) o con tarjeta por Tilopay.'],
   ['¿Cuánto cuesta y cuánto tarda el envío?', `El envío a todo Costa Rica es GRATIS por ${SITE.courier}. Tarda ${SITE.deliveryDays}.`],
-  ['¿Hacen cambios de talla?', 'Escribinos por WhatsApp si la talla no te queda. Revisamos cada caso según el estado del producto y la política de envíos.']
+  ['¿Hacen cambios de talla?', `Escribinos por WhatsApp si la talla no te queda. ${EXCHANGE_POLICY}`],
+  ['¿Es un producto médico?', 'No. Es un soporte atlético. Si tenés dolor, consultá a un profesional de salud.'],
+  ['¿Puedo pedir 2 tallas distintas?', 'Sí. Con el pack de 2 unidades elegís la talla de cada una y pagás el precio de pack.']
 ];
 
 export const COMMON_USAGE = PRODUCT.howToUse;

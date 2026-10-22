@@ -53,12 +53,12 @@ test('SINPE: creates a pending order, re-prices server-side and returns payment 
     body: { ...customer, items: [{ key: 'arnes-ml', qty: 2 }], total: 1, clientOrderId: 'ORD-1791071433000-2906' }
   });
   assert.equal(r.status, 200, JSON.stringify(r.body));
-  assert.equal(r.body.total, 29800); // free shipping
+  assert.equal(r.body.total, 26900); // pack-2 + free shipping
   assert.equal(r.body.orderId, 'ORD-1791071433000-2906');
   assert.deepEqual(r.body.sinpe, {
     phone: '88887777',
     holder: 'ForgeCR Test',
-    amount: 29800,
+    amount: 26900,
     reference: 'ORD-1791071433000-2906'
   });
 });

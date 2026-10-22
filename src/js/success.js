@@ -4,6 +4,8 @@
  * by the signed Tilopay webhook (see api/tilopay/confirm.js).
  */
 import './core.js';
+import { initChrome } from './lib/chrome.js';
+initChrome();
 import { cart } from './lib/store.js';
 import { $, $$, track, orderContents } from './lib/ui.js';
 

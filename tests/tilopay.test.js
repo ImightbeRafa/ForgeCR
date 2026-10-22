@@ -84,5 +84,6 @@ test('shipping is always free', () => {
   const cat = buildCatalog(readConfig({}));
   assert.equal(cat.priceOrder([{ key: 'arnes-ml', qty: 1 }]).shipping, 0);
   assert.equal(cat.priceOrder([{ key: 'arnes-ml', qty: 1 }]).total, 14900);
-  assert.equal(cat.priceOrder([{ key: 'arnes-xl', qty: 2 }]).total, 29800);
+  assert.equal(cat.priceOrder([{ key: 'arnes-xl', qty: 2 }]).total, 26900);
+  assert.equal(cat.priceOrder([{ key: 'arnes-ml', qty: 1 }, { key: 'arnes-xl', qty: 1 }]).total, 26900);
 });

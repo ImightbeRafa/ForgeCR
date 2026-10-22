@@ -1,5 +1,8 @@
 import './core.js';
+import { initChrome } from './lib/chrome.js';
 import { $ } from './lib/ui.js';
+
+initChrome();
 
 // Gateway messages come from the query string: render as text only, never as HTML.
 const q = new URLSearchParams(location.search);

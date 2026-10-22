@@ -33,16 +33,16 @@ export function header(active = '') {
   <div class="container header__inner">
     <a href="/" class="header__logo">ForgeCR</a>
     <nav class="header__nav" id="headerNav">
-      ${link('/#producto', 'Tienda', 'tienda')}
+      ${link('/producto/arnes-forgecr/', 'Tienda', 'tienda')}
       ${link('/#historia', 'Nuestra Historia', 'historia')}
       ${link('/#tallas', 'Guía de Tallas', 'tallas')}
     </nav>
     <div class="header__actions">
-      <a href="/#pedido" class="header__order-cta">Ordenar Ahora</a>
-      <a href="/#pedido" class="header__cart" aria-label="Ir al pedido">
+      <a href="/producto/arnes-forgecr/#buybox" class="header__order-cta">Ordenar Ahora</a>
+      <a href="/checkout/" class="header__cart" aria-label="Ir al checkout">
         <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-shopping-cart"></use></svg>
       </a>
-      <button class="header__hamburger" id="hamburger" aria-label="Menú" type="button">
+      <button class="header__hamburger" id="hamburger" aria-label="Menú" aria-expanded="false" aria-controls="mobileDrawer" type="button">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -55,7 +55,7 @@ export function header(active = '') {
     <a href="/#producto" class="mobile-drawer__link">Tienda</a>
     <a href="/#historia" class="mobile-drawer__link">Nuestra Historia</a>
     <a href="/#tallas" class="mobile-drawer__link">Guía de Tallas</a>
-    <a href="/#pedido" class="mobile-drawer__link mobile-drawer__cta">Comprar Ahora</a>
+    <a href="/producto/arnes-forgecr/" class="mobile-drawer__link mobile-drawer__cta">Comprar Ahora</a>
   </nav>
 </div>`;
 }
@@ -75,9 +75,9 @@ export function footer() {
     <div class="footer__columns">
       <div class="footer__col">
         <span class="footer__col-title">Tienda</span>
-        <a href="/#producto">Arnés ForgeCR</a>
+        <a href="/producto/arnes-forgecr/">Arnés ForgeCR</a>
         <a href="/#tallas">Guía de tallas</a>
-        <a href="/#pedido">Ordenar</a>
+        <a href="/producto/arnes-forgecr/">Ordenar</a>
       </div>
       <div class="footer__col">
         <span class="footer__col-title">Ayuda</span>
@@ -87,8 +87,8 @@ export function footer() {
       </div>
       <div class="footer__col">
         <span class="footer__col-title">Pagos</span>
-        <a href="/#pedido">SINPE Móvil</a>
-        <a href="/#pedido">Tarjeta (Tilopay)</a>
+        <a href="/producto/arnes-forgecr/">SINPE Móvil</a>
+        <a href="/producto/arnes-forgecr/">Tarjeta (Tilopay)</a>
         <span>Desde ${formatCRC(PRICE)} · Envío gratis</span>
       </div>
     </div>
@@ -97,12 +97,15 @@ export function footer() {
     <span class="footer__copy">&copy; ${new Date().getFullYear()} ${SITE.legalName}. Todos los derechos reservados.</span>
   </div>
 </footer>
-<a class="wa-float" href="https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent('Hola ForgeCR, tengo una consulta')}" target="_blank" rel="noopener" aria-label="WhatsApp">WA</a>`;
+<a class="wa-float whatsapp-fab" href="https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent('Hola ForgeCR, tengo una consulta')}" target="_blank" rel="noopener" aria-label="WhatsApp ForgeCR">
+  <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-whatsapp"></use></svg>
+</a>
+<div class="toasts" data-toasts></div>`;
 }
 
 export function layout(o) {
   const url = `${SITE.url}${o.path}`;
-  const image = `${SITE.url}${o.image || '/images/forge-v1-1200.webp'}`;
+  const image = `${SITE.url}${o.image || '/images/product/pack-back-1200.webp'}`;
   const css = ['/src/styles/site.css', ...(o.css || [])]
     .map((href) => `<link rel="stylesheet" href="${href}">`)
     .join('\n  ');
@@ -167,7 +170,16 @@ export function faqJsonLd(items = FAQ) {
 }
 
 // Compatibility exports used by older template helpers
-export const icons = {};
+const icon = (id) => `<svg class="icon" aria-hidden="true" focusable="false"><use href="#${id}"></use></svg>`;
+export const icons = {
+  lock: icon('icon-lock'),
+  truck: icon('icon-local-shipping'),
+  chat: icon('icon-chat'),
+  check: icon('icon-check'),
+  close: icon('icon-close'),
+  whatsapp: icon('icon-whatsapp'),
+  clock: icon('icon-schedule')
+};
 export function wordmark() {
   return 'ForgeCR';
 }

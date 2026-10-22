@@ -23,3 +23,8 @@ design-preview/
 tmp-master-*
 *.tmp.html
 
+# Large source media (optimized copies live in public/)
+assets-src/video-frames/
+assets-src/video-loops/
+assets-src/video-picks/
+

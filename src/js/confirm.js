@@ -1,5 +1,7 @@
 /** /pedido/ – shows SINPE Móvil payment instructions (or a card order recap) from the saved order. */
 import './core.js';
+import { initChrome } from './lib/chrome.js';
+initChrome();
 import { storageGet } from './lib/store.js';
 import { $, $$, formatCRC, esc, toast } from './lib/ui.js';
 import { formatPhone } from '../../shared/validate.js';

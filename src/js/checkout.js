@@ -3,6 +3,7 @@
  * The server re-validates and re-prices everything; this file only drives the UI.
  */
 import { shippingProgress } from './core.js';
+import { initChrome } from './lib/chrome.js';
 import { cart, catalog, storageGet, storageSet } from './lib/store.js';
 import { $, $$, formatCRC, lineHtml, bindLineControls, track, orderContents, toast } from './lib/ui.js';
 import { validateCheckout, sanitizeCustomer, formatPhone } from '../../shared/validate.js';
@@ -38,7 +39,7 @@ function renderSummary() {
   $('[data-shipping]').textContent = s.shipping ? formatCRC(s.shipping) : 'Gratis';
   $('[data-ship-progress]').innerHTML = shippingProgress(s.subtotal);
   $('[data-total]').textContent = formatCRC(s.total);
-  $('[data-savings-row]').hidden = !s.savings;
+  $('[data-savings-row]').hidden = !(s.savings > 0);
   $('[data-savings]').textContent = `−${formatCRC(s.savings)}`;
   $('[data-summary-mini]').textContent = formatCRC(s.total);
   $('[data-bar-total]').textContent = formatCRC(s.total);
@@ -81,17 +82,7 @@ function applyMethods() {
   syncMethod();
 }
 
-async function loadConfig() {
-  try {
-    const res = await fetch('/api/config', { headers: { Accept: 'application/json' } });
-    if (!res.ok) return;
-    const cfg = await res.json();
-    methods = { sinpe: Boolean(cfg.sinpe?.enabled), card: Boolean(cfg.card?.enabled) };
-    // Never leave the customer with no way to pay: if config says neither, show both and let the server answer.
-    if (!methods.sinpe && !methods.card) methods = { sinpe: true, card: true };
-    applyMethods();
-  } catch { /* offline/dev without API: keep both options */ }
-}
+/* Payment radios stay visible. The server still rejects SINPE if env is missing. */
 
 /* ---------- validation UI ---------- */
 function fieldEl(name) { return form.elements[name]; }
@@ -254,12 +245,13 @@ form.addEventListener('submit', async (e) => {
 window.addEventListener('pageshow', (e) => { if (e.persisted && submitting) setBusy(false); });
 
 /* ---------- init ---------- */
+initChrome();
 bindLineControls($('[data-lines]'), cart);
 cart.subscribe(renderSummary);
 restoreCustomer();
 renderSummary();
 syncMethod();
-loadConfig();
+applyMethods();
 
 // Desktop shows the summary expanded and always visible; mobile starts collapsed to keep the form first.
 const mq = matchMedia('(min-width: 900px)');

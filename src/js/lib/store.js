@@ -88,6 +88,6 @@ export const cart = {
   }
 };
 
-export function thumbOf(key) {
-  return '/images/arnes-thumb.webp';
+export function thumbOf(_key) {
+  return '/images/product/pack-front-thumb.webp';
 }

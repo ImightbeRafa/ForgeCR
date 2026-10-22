@@ -19,8 +19,8 @@ export function checkoutPage() {
 
   <div class="checkout-empty" data-empty hidden>
     <h2>Tu carrito está vacío</h2>
-    <p>Agregá algún parche para continuar con tu pedido.</p>
-    <a class="btn btn-cta btn-lg" href="/#tienda">Ver los parches</a>
+    <p>Agregá el Arnés ForgeCR para continuar con tu pedido.</p>
+    <a class="btn btn-cta btn-lg" href="/producto/arnes-forgecr/">Ver el arnés</a>
   </div>
 
   <div class="checkout-grid" data-checkout hidden>

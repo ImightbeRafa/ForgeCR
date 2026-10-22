@@ -1,4 +1,4 @@
-import { SITE, formatCRC, PRICE } from '../../../shared/catalog.js';
+import { SITE, formatCRC, PRICE, EXCHANGE_POLICY } from '../../../shared/catalog.js';
 import { layout, esc } from '../layout.js';
 
 const UPDATED = 'Octubre 2026';
@@ -42,7 +42,8 @@ export function shippingPage() {
   <li>Revisamos tu caso y, según corresponda, <b>reemplazamos el producto o te devolvemos el dinero</b>.</li>
 </ul>
 
-<h2>6. Cambios de talla</h2>
+<h2>6. Cambios de talla y problemas al recibir</h2>
+<p>${EXCHANGE_POLICY}</p>
 <p>Si la talla no te queda, escribinos por ${WA}. Revisamos cada caso según el estado del producto.</p>
 
 <p>¿Dudas? ${WA}</p>`;

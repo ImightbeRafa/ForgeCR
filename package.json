@@ -11,6 +11,7 @@
     "build": "node scripts/build-pages.js && vite build",
     "preview": "vite preview",
     "images": "node scripts/optimize-images.js",
+    "frames": "node scripts/prep-video-frames.mjs",
     "preview:design": "node scripts/build-preview.js",
     "test": "node --test \"tests/*.test.js\""
   },
