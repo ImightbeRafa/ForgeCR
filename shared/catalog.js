@@ -29,7 +29,7 @@ export const SITE = {
   instagramHandle: '@forge.costarica',
   email: 'orders@forge.shopping',
   pixelId: '983130057569210',
-  deliveryDays: '2 a 5 días hábiles',
+  deliveryDays: '2 a 3 días hábiles',
   pickup: '',
   courier: 'Correos de Costa Rica'
 };
